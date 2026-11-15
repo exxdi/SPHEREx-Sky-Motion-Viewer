@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPHEREx Sky Motion Viewer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=19">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="#viewer">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="14" cy="14" r="3" fill="currentColor"/><circle cx="22" cy="8" r="1.5" fill="#5CC8E8"/></svg>
+      <span>SPHEREx Sky Motion Viewer</span>
+    </a>
+    <nav aria-label="Main" class="nav">
+      <a href="#viewer" class="active">Viewer</a>
+      <a href="#examples">Examples</a>
+      <a href="#guide">How to search</a>
+      <a href="#about">About the data</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- ============================ VIEWER ============================ -->
+  <section id="viewer" class="wrap section">
+    <form id="search-form" class="card search">
+      <div class="field grow">
+        <label for="target">Coordinates or object name</label>
+        <input id="target" name="target" placeholder="Barnard's Star · 269.452 4.693 · 08h55m10.8s -07d14m42s" required>
+      </div>
+      <div class="field">
+        <label for="fov">Field of view</label>
+        <select id="fov" name="fov">
+          <option value="0.05">0.05°</option>
+          <option value="0.1" selected>0.1°</option>
+          <option value="0.25">0.25°</option>
+          <option value="0.5">0.5° (slow)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="det">Detector</label>
+        <select id="det" name="det">
+          <option value="all">All (D1–D6)</option>
+          <option value="D1">D1 · 0.75–1.1 µm</option>
+          <option value="D2" selected>D2 · 1.1–1.6 µm</option>
+          <option value="D3">D3 · 1.6–2.4 µm</option>
+          <option value="D4">D4 · 2.4–3.8 µm</option>
+          <option value="D5">D5 · 3.8–4.4 µm</option>
+          <option value="D6">D6 · 4.4–5.0 µm</option>
+        </select>
+      </div>
+      <div class="field date-field">
+        <label for="date-from">From date</label>
+        <input id="date-from" type="date">
+      </div>
+      <div class="field date-field">
+        <label for="date-to">To date</label>
+        <input id="date-to" type="date">
+      </div>
+      <button type="submit" class="btn primary">Show the sky</button>
+    </form>
+    <div id="epoch-chips" class="epoch-chips" aria-label="When SPHEREx observed this point" hidden></div>
+    <label class="check epoch-opt" title="SPHEREx observes each point in a burst of a few days about every six months. Each burst is one epoch."><input type="checkbox" id="epoch-toggle"> Show epochs</label>
+
+    <p id="status" class="status" role="status" aria-live="polite">Enter a target to start. Try one of the examples below.</p>
+
+    <div class="viewer-grid">
+      <section class="card player" aria-label="Player">
+        <div class="player-head">
+          <h1 id="target-title">No target yet</h1>
+          <div class="segmented" role="group" aria-label="Display mode">
+            <button type="button" data-view="frames" class="on">Frames</button>
+            <button type="button" data-view="coadd">Stack by date</button>
+            <button type="button" data-view="diff">Clean difference</button>
+            <button type="button" data-view="rgb">Color</button>
+          </div>
+        </div>
+
+        <div class="stage" id="stage">
+          <img id="frame-img" alt="SPHEREx cutout" hidden>
+          <img id="flags-img" class="flags-layer" alt="" hidden>
+          <svg id="overlay" class="overlay" aria-hidden="true"></svg>
+          <div id="hover-tip" class="tip" role="tooltip" hidden></div>
+          <div id="stage-empty" class="stage-empty">No frames loaded</div>
+          <div id="frame-label" class="badge tl" hidden></div>
+          <div class="badge br">N ↑ E ←</div>
+        </div>
+
+        <div class="controls">
+          <button type="button" id="prev" class="btn icon" aria-label="Previous frame">◀</button>
+          <button type="button" id="play" class="btn primary">Play</button>
+          <button type="button" id="next" class="btn icon" aria-label="Next frame">▶</button>
+          <div class="slider">
+            <label for="speed">Speed <output id="speed-val">2 fps</output></label>
+            <input id="speed" type="range" min="0.5" max="10" step="0.5" value="2">
+          </div>
+          <div class="slider">
+            <label for="bright">Brightness <output id="bright-val">100%</output></label>
+            <input id="bright" type="range" min="30" max="300" step="5" value="100">
+          </div>
+          <div class="slider">
+            <label for="contrast">Contrast <output id="contrast-val">100%</output></label>
+            <input id="contrast" type="range" min="30" max="300" step="5" value="100">
+          </div>
+          <button type="button" id="reset-look" class="btn">Reset</button>
+        </div>
+
+        <div class="lam-row">
+          <div class="field grow">
+            <label for="lam-preset">Wavelength window — what each molecule or object looks like</label>
+            <select id="lam-preset">
+              <option value="0.75,5.0" selected>All infrared (0.75–5.0 µm)</option>
+              <option value="0.75,1.6">Short: ordinary stars are brightest (0.75–1.6 µm)</option>
+              <option value="2.9,3.2">Water ice (≈3.05 µm)</option>
+              <option value="3.2,3.45">Methane: brown dwarfs turn dark (≈3.3 µm)</option>
+              <option value="4.2,4.35">CO₂ ice (≈4.27 µm)</option>
+              <option value="4.55,4.8">CO (≈4.67 µm)</option>
+              <option value="4.4,5.0">Longest: the coldest objects are brightest (4.4–5.0 µm)</option>
+              <option value="custom">Custom range</option>
+            </select>
+          </div>
+          <div class="field narrow">
+            <label for="lam-min">From, µm</label>
+            <input id="lam-min" type="number" min="0.75" max="5" step="0.05" value="0.75">
+          </div>
+          <div class="field narrow">
+            <label for="lam-max">To, µm</label>
+            <input id="lam-max" type="number" min="0.75" max="5" step="0.05" value="5.0">
+          </div>
+        </div>
+
+        <div class="timeline-wrap">
+          <div id="timeline" class="timeline" aria-label="Frames"></div>
+        </div>
+        <p class="hint">Hover a circle or square to see what is known about that source. Click the image to plot the spectrum of that point. Keys: ← → step, Space play/pause.</p>
+      </section>
+
+      <aside class="side">
+        <section class="card" aria-labelledby="meta-h">
+          <h2 id="meta-h">This frame</h2>
+          <dl class="meta">
+            <dt>Observed</dt><dd id="m-date">—</dd>
+            <dt id="m-epoch-dt" hidden>Epoch</dt><dd id="m-epoch" hidden>—</dd>
+            <dt>Detector</dt><dd id="m-det">—</dd>
+            <dt>Wavelength</dt><dd id="m-lam">—</dd>
+            <dt>Release</dt><dd id="m-ver">—</dd>
+            <dt>Flagged pixels</dt><dd id="m-flag" class="warn">—</dd>
+          </dl>
+          <p id="m-bits" class="small muted"></p>
+          <a id="fits-link" href="#" hidden>Download this frame (FITS)</a>
+          <p id="m-asof" class="small muted"></p>
+        </section>
+
+        <section class="card" aria-labelledby="det-h">
+          <h2 id="det-h">Find moving objects</h2>
+          <p class="small muted">Automatic search: compares frames taken at the <b>same wavelength</b> on different observation dates, removes noise (median of all pairs + star-sized filter), lists what moved or changed brightness, and checks each one against Gaia.</p>
+          <div class="det-controls">
+            <div class="field">
+              <label for="det-sigma">Sensitivity</label>
+              <select id="det-sigma">
+                <option value="7">Strict (7σ)</option>
+                <option value="5" selected>Normal (5σ)</option>
+                <option value="4">Sensitive (4σ, more false alarms)</option>
+              </select>
+            </div>
+            <button type="button" id="det-run" class="btn primary">Find</button>
+          </div>
+          <label class="check"><input type="checkbox" id="det-show" checked> Show detections on the image</label>
+          <p id="det-status" class="small muted"></p>
+          <p class="small muted legend-verdicts"><span class="unmatched">● Unmatched</span> — in no catalog, clean signal (worth reporting) · <span class="known">● Known</span> — Gaia, AllWISE or a known asteroid · <span class="inconclusive">● Inconclusive</span> — the reason is listed. Tag symbol: → moving · » fast (asteroid?) · ▲ brighter · ▼ fainter</p>
+          <div id="det-export" class="det-controls" hidden>
+            <button type="button" id="det-csv" class="btn">Download CSV</button>
+            <button type="button" id="det-json" class="btn">Download JSON</button>
+            <button type="button" id="det-pkg" class="btn primary" title="SOLAR Candidate Data Package (Data Contract v1.0): manifest, metadata, candidates, observations, trajectories, cross-matches, verification log, VOTable/ECSV, image index, SHA-256 checksums">Download Full Data Package (ZIP)</button>
+          </div>
+          <ol id="det-list" class="det-list"></ol>
+        </section>
+
+        <section class="card" aria-labelledby="ovl-h">
+          <h2 id="ovl-h">Overlays</h2>
+          <label class="check"><input type="checkbox" id="smooth-toggle"> Reduce noise (star-sized smoothing)</label>
+          <p class="small muted">Averages each pixel with its neighbours at the size of a star: noise drops, real stars stay. Off = raw pixels.</p>
+          <label class="check"><input type="checkbox" id="flags-toggle"> Flagged pixels (contamination flags)</label>
+          <p class="small muted">Red marks pixels the SPHEREx pipeline flagged — hot pixels, cosmic rays, saturation and more. A "moving object" sitting on red is usually an artifact.</p>
+          <label class="check"><input type="checkbox" id="gaia-toggle"> Gaia DR3 stars + motion arrows</label>
+          <p class="small muted">Circles mark stars already known to ESA's Gaia. Each arrow shows where that star moves in 10 years. A moving dot <b>without</b> a circle, or moving differently from its arrow, is worth reporting.</p>
+          <div class="field">
+            <label for="gaia-depth">Which Gaia stars</label>
+            <select id="gaia-depth">
+              <option value="16" selected>Bright (G &lt; 16) + fast movers</option>
+              <option value="18">Fainter (G &lt; 18) + fast movers</option>
+              <option value="0">Fast movers only (&gt; 0.1″/yr)</option>
+            </select>
+          </div>
+          <p id="gaia-status" class="small muted"></p>
+          <label class="check"><input type="checkbox" id="wise-toggle"> AllWISE sources (WISE mission)</label>
+          <p class="small muted">Pink squares: infrared sources from NASA's WISE, with their W1/W2 brightness and motion. Brown dwarfs are bright here but faint for Gaia.</p>
+          <p id="wise-status" class="small muted"></p>
+          <a id="aladin-link" href="#" target="_blank" rel="noopener">Open this field in Aladin Lite (WISE, Gaia, more)</a>
+        </section>
+
+        <section class="card" aria-labelledby="set-h">
+          <h2 id="set-h">Settings</h2>
+          <div class="settings">
+            <div class="field">
+              <label for="set-cov">Hide frames covering less than</label>
+              <select id="set-cov">
+                <option value="0.5">50 % of the field</option>
+                <option value="0.7" selected>70 % of the field (default)</option>
+                <option value="0.9">90 % of the field</option>
+                <option value="1">100 % — only complete frames</option>
+              </select>
+              <p class="small muted">Frames taken near a detector edge do not cover the whole field (striped area). Higher = fewer but complete frames.</p>
+            </div>
+            <div class="field">
+              <label for="set-fast">Asteroid search needs</label>
+              <select id="set-fast">
+                <option value="5" selected>5 detections — strict (default)</option>
+                <option value="4">4 detections</option>
+                <option value="3">3 detections — finds more, more false alarms</option>
+              </select>
+            </div>
+            <div class="field">
+              <span class="lbl-like">SPHEREx data</span>
+              <button type="button" id="set-fresh" class="btn">Check IRSA for new frames now</button>
+              <p class="small muted" id="set-fresh-note">The frame list is refreshed automatically every 12 hours; new SPHEREx data arrive weekly.</p>
+            </div>
+            <p class="small muted" id="set-server"></p>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="share-h">
+          <h2 id="share-h">Share this view</h2>
+          <div class="share">
+            <input id="share-url" aria-label="Link to this view" readonly>
+            <button type="button" id="copy" class="btn">Copy</button>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <section class="card spectrum-card" aria-labelledby="spec-h">
+      <div class="spec-head">
+        <h2 id="spec-h">Measure a point</h2>
+        <div class="segmented" role="group" aria-label="Chart type">
+          <button type="button" data-chart="spectrum" class="on">Spectrum (vs wavelength)</button>
+          <button type="button" data-chart="lightcurve">Light curve (vs time)</button>
+        </div>
+      </div>
+      <div id="spec-legend" class="legend"></div>
+      <p id="spec-note" class="small muted">Click any point in the image to measure its brightness in every frame. Click a dot on the chart to jump to that frame.</p>
+      <svg id="spectrum" viewBox="0 0 960 360" role="img" aria-label="Brightness of the selected point"></svg>
+    </section>
+  </section>
+
+  <!-- ============================ EXAMPLES ============================ -->
+  <section id="examples" class="wrap section">
+    <h2 class="section-title">Start with a known target</h2>
+    <p class="lead">Five objects where SPHEREx should show motion or changing brightness.</p>
+    <div class="cards">
+      <article class="card example">
+        <div class="ex-head"><h3>Barnard's Star</h3><span class="tag move">Moves</span></div>
+        <p class="mono">17h57m48.5s +04°41′36″</p>
+        <p>Red dwarf with the fastest motion across the sky, about 10″ a year.</p>
+        <button class="btn link" data-target="Barnard's Star" data-name="Barnard's Star">Open in viewer →</button>
+      </article>
+      <article class="card example">
+        <div class="ex-head"><h3>Epsilon Indi B</h3><span class="tag move">Moves</span></div>
+        <p class="mono">22h04m10.5s −56°46′58″</p>
+        <p>A pair of brown dwarfs. Faint at short wavelengths — try detectors D5–D6.</p>
+        <button class="btn link" data-target="Epsilon Indi B" data-name="Epsilon Indi B" data-det="D6">Open in viewer →</button>
+      </article>
+      <article class="card example">
+        <div class="ex-head"><h3>WISE 0855−0714</h3><span class="tag move">Moves</span></div>
+        <p class="mono">08h55m10.831s −07°14′42.53″</p>
+        <p>The coldest known brown dwarf. Use co-add at the longest wavelengths.</p>
+        <button class="btn link" data-target="08h55m10.831s -07d14m42.53s" data-name="WISE 0855−0714" data-det="D6">Open in viewer →</button>
+      </article>
+      <article class="card example">
+        <div class="ex-head"><h3>RW Aurigae</h3><span class="tag vary">Varies</span></div>
+        <p class="mono">05h07m49.5s +30°24′05″</p>
+        <p>A young irregular variable. Compare observation dates at the same wavelength.</p>
+        <button class="btn link" data-target="RW Aur" data-name="RW Aurigae">Open in viewer →</button>
+      </article>
+      <article class="card example">
+        <div class="ex-head"><h3>R Draconis</h3><span class="tag vary">Varies</span></div>
+        <p class="mono">16h32m40.2s +66°45′18″</p>
+        <p>A Mira variable with a period of about 245 days.</p>
+        <button class="btn link" data-target="R Dra" data-name="R Draconis">Open in viewer →</button>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================ GUIDE ============================ -->
+  <section id="guide" class="wrap section">
+    <h2 class="section-title">How to spot something new</h2>
+    <p class="lead">Pluto was found by comparing two photos of the sky taken at different times. You do the same, frame by frame.</p>
+    <div class="cards three">
+      <article class="card">
+        <h3 class="c-move">A moving object</h3>
+        <ol>
+          <li>The dot shifts while the stars around it stay put.</li>
+          <li>It moves in a straight line, the same way between observation dates.</li>
+          <li>In Clean difference mode it becomes a dark–bright pair.</li>
+        </ol>
+        <p class="small muted">Turn on Gaia: if no known star there has that motion, you may have found something.</p>
+      </article>
+      <article class="card">
+        <h3 class="c-vary">A variable star</h3>
+        <ol>
+          <li>The dot stays in place but gets brighter or fainter.</li>
+          <li>Compare frames at the same wavelength (λ label).</li>
+          <li>Click it to see whether the whole spectrum changed.</li>
+        </ol>
+        <p class="small muted">Each SPHEREx frame is a different infrared color, so brightness also changes with λ.</p>
+      </article>
+      <article class="card">
+        <h3 class="c-art">An artifact (not real)</h3>
+        <ol>
+          <li>A sharp single-pixel spot with hard edges.</li>
+          <li>Appears in one frame only.</li>
+          <li>Check the flagged-pixel count for that frame.</li>
+        </ol>
+        <p class="small muted">Cosmic rays and hot pixels are the most common false alarms.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================ ABOUT ============================ -->
+  <section id="about" class="wrap section">
+    <h2 class="section-title">About the data</h2>
+    <div class="cards two">
+      <article class="card">
+        <h3>SPHEREx</h3>
+        <p>NASA's SPHEREx maps the whole sky every six months in 102 near-infrared bands (0.75–5.0 µm) using six detector arrays, D1–D6. Every frame is taken at a slightly different wavelength.</p>
+        <p>Images come live from the <a href="https://irsa.ipac.caltech.edu/Missions/spherex.html" target="_blank" rel="noopener">NASA/IPAC Infrared Science Archive (IRSA)</a>, which adds new data every week. Current releases: QR3 and DR1.</p>
+        <p class="small muted">This publication makes use of data products from the Spectro-Photometer for the History of the Universe, Epoch of Reionization and Ices Explorer (SPHEREx), which is a joint project of the Jet Propulsion Laboratory and the California Institute of Technology, and is funded by the National Aeronautics and Space Administration.</p>
+      </article>
+      <article class="card">
+        <h3>Gaia DR3</h3>
+        <p>Star positions and proper motions from ESA's Gaia Data Release 3 (positions measured for the year 2016.0), shifted to the date of each SPHEREx frame.</p>
+        <p>DOI: <a href="https://doi.org/10.5270/esa-qa4lep3" target="_blank" rel="noopener">10.5270/esa-qa4lep3</a></p>
+      </article>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap footer">
+  <p class="small muted">Built for the NASA Space Apps Challenge 2026 · Planet X and SPHEREx</p>
+</footer>
+
+<script src="app.js?v=27"></script>
+</body>
+</html>

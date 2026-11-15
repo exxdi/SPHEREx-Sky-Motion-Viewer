@@ -1,0 +1,2716 @@
+{
+  "n_frames": 85,
+  "epochs": [
+    0
+  ],
+  "epoch_pairs": [],
+  "sigma": 4,
+  "gaia_checked": true,
+  "candidates": [
+    {
+      "id": 1,
+      "kind": "fast",
+      "snr": 17.3,
+      "support": 4,
+      "points": [
+        {
+          "mjd": 60911.493589,
+          "x": 11.64,
+          "y": 54.73,
+          "ra": 269.48183312272903,
+          "dec": 4.737321537511775
+        },
+        {
+          "mjd": 60912.718623,
+          "x": 19.53,
+          "y": 37.58,
+          "ra": 269.46830283674046,
+          "dec": 4.708025209782214
+        },
+        {
+          "mjd": 60914.21253,
+          "x": 28.58,
+          "y": 17.48,
+          "ra": 269.45280137189775,
+          "dec": 4.673677065920848
+        },
+        {
+          "mjd": 60915.434118,
+          "x": 38.11,
+          "y": 0.56,
+          "ra": 269.43646191717573,
+          "dec": 4.644782719169871
+        }
+      ],
+      "rate_arcsec_hr": 3.9,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: near the edge of the field",
+      "reasons": [
+        "near the edge of the field"
+      ]
+    },
+    {
+      "id": 2,
+      "kind": "fast",
+      "snr": 11.2,
+      "support": 4,
+      "points": [
+        {
+          "mjd": 60902.864715,
+          "x": 1.03,
+          "y": 46.51,
+          "ra": 269.5000190979819,
+          "dec": 4.723269378421147
+        },
+        {
+          "mjd": 60911.492097,
+          "x": 20.59,
+          "y": 36.32,
+          "ra": 269.4665003452905,
+          "dec": 4.7058776160172995
+        },
+        {
+          "mjd": 60911.495081,
+          "x": 20.56,
+          "y": 36.37,
+          "ra": 269.4665484261526,
+          "dec": 4.705948681804556
+        },
+        {
+          "mjd": 60914.276271,
+          "x": 27.44,
+          "y": 33.58,
+          "ra": 269.4547429235278,
+          "dec": 4.701193760640091
+        }
+      ],
+      "rate_arcsec_hr": 0.7,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: near the edge of the field",
+      "reasons": [
+        "near the edge of the field"
+      ]
+    },
+    {
+      "id": 3,
+      "kind": "fast",
+      "snr": 3062.1,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60902.866207,
+          "x": 49.71,
+          "y": 48.05,
+          "ra": 269.41657811437295,
+          "dec": 4.7259071904156045
+        },
+        {
+          "mjd": 60908.643666,
+          "x": 25.5,
+          "y": 39.85,
+          "ra": 269.45807123369184,
+          "dec": 4.711901357048888
+        },
+        {
+          "mjd": 60914.276271,
+          "x": 1.53,
+          "y": 31.86,
+          "ra": 269.49916869815786,
+          "dec": 4.698256168455589
+        }
+      ],
+      "rate_arcsec_hr": 1.1,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field"
+      ]
+    },
+    {
+      "id": 4,
+      "kind": "fast",
+      "snr": 96.2,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60908.63919,
+          "x": 56.22,
+          "y": 39.69,
+          "ra": 269.4054225214884,
+          "dec": 4.711619759983474
+        },
+        {
+          "mjd": 60914.277763,
+          "x": 31.45,
+          "y": 44.66,
+          "ra": 269.44787543211567,
+          "dec": 4.720108938331469
+        },
+        {
+          "mjd": 60916.660556,
+          "x": 21.29,
+          "y": 45.67,
+          "ra": 269.4652933597098,
+          "dec": 4.72184237505513
+        }
+      ],
+      "rate_arcsec_hr": 1.1,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field"
+      ]
+    },
+    {
+      "id": 5,
+      "kind": "fast",
+      "snr": 95.8,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60912.035917,
+          "x": 6.56,
+          "y": 7.09,
+          "ra": 269.4905446093388,
+          "dec": 4.655928321374054
+        },
+        {
+          "mjd": 60916.657572,
+          "x": 28.97,
+          "y": 4.57,
+          "ra": 269.4521326347549,
+          "dec": 4.6516259735175165
+        },
+        {
+          "mjd": 60917.67394,
+          "x": 35.27,
+          "y": 4.36,
+          "ra": 269.4413372992244,
+          "dec": 4.651265473653734
+        }
+      ],
+      "rate_arcsec_hr": 1.3,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections",
+      "reasons": [
+        "only 3 detections"
+      ]
+    },
+    {
+      "id": 6,
+      "kind": "fast",
+      "snr": 49.1,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60908.63919,
+          "x": 21.49,
+          "y": 52.99,
+          "ra": 269.4649497840945,
+          "dec": 4.734345239458117
+        },
+        {
+          "mjd": 60912.715639,
+          "x": 26.65,
+          "y": 54.44,
+          "ra": 269.456105090086,
+          "dec": 4.736819223614583
+        },
+        {
+          "mjd": 60914.277763,
+          "x": 27.57,
+          "y": 55.77,
+          "ra": 269.4545263525161,
+          "dec": 4.739092893424452
+        }
+      ],
+      "rate_arcsec_hr": 0.3,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field"
+      ]
+    },
+    {
+      "id": 7,
+      "kind": "fast",
+      "snr": 35,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60912.715639,
+          "x": 23.05,
+          "y": 24.49,
+          "ra": 269.46227645921806,
+          "dec": 4.685668209125851
+        },
+        {
+          "mjd": 60915.432626,
+          "x": 25.43,
+          "y": 16.97,
+          "ra": 269.4581880532243,
+          "dec": 4.672820826528069
+        },
+        {
+          "mjd": 60916.72197,
+          "x": 26.45,
+          "y": 14.17,
+          "ra": 269.45644266038937,
+          "dec": 4.6680264141474925
+        }
+      ],
+      "rate_arcsec_hr": 0.7,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections",
+      "reasons": [
+        "only 3 detections"
+      ]
+    },
+    {
+      "id": 8,
+      "kind": "fast",
+      "snr": 34.4,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60905.854749,
+          "x": 19.57,
+          "y": 11.4,
+          "ra": 269.46823882482266,
+          "dec": 4.663301641458292
+        },
+        {
+          "mjd": 60912.717131,
+          "x": 40.09,
+          "y": 12.12,
+          "ra": 269.43307228009064,
+          "dec": 4.664534787649707
+        },
+        {
+          "mjd": 60916.660556,
+          "x": 52.8,
+          "y": 11.81,
+          "ra": 269.4112803735841,
+          "dec": 4.66400589678658
+        }
+      ],
+      "rate_arcsec_hr": 0.8,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections",
+      "reasons": [
+        "only 3 detections"
+      ]
+    },
+    {
+      "id": 9,
+      "kind": "fast",
+      "snr": 28.5,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60905.853257,
+          "x": 27.57,
+          "y": 0.76,
+          "ra": 269.45453044004546,
+          "dec": 4.645114608233443
+        },
+        {
+          "mjd": 60908.981929,
+          "x": 17.45,
+          "y": 23.5,
+          "ra": 269.4718750058755,
+          "dec": 4.683967054645227
+        },
+        {
+          "mjd": 60912.035917,
+          "x": 8.58,
+          "y": 44.25,
+          "ra": 269.4870742827153,
+          "dec": 4.719421105201844
+        }
+      ],
+      "rate_arcsec_hr": 2,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field"
+      ]
+    },
+    {
+      "id": 10,
+      "kind": "fast",
+      "snr": 20.5,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60903.138366,
+          "x": 56.88,
+          "y": 45.49,
+          "ra": 269.4042946757367,
+          "dec": 4.721529399981686
+        },
+        {
+          "mjd": 60908.643666,
+          "x": 31.18,
+          "y": 50.48,
+          "ra": 269.44833952864246,
+          "dec": 4.73005822141448
+        },
+        {
+          "mjd": 60912.037409,
+          "x": 16.54,
+          "y": 52.88,
+          "ra": 269.47344251206164,
+          "dec": 4.734161742207476
+        }
+      ],
+      "rate_arcsec_hr": 1.2,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field"
+      ]
+    },
+    {
+      "id": 11,
+      "kind": "fast",
+      "snr": 19.1,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60911.495081,
+          "x": 41.44,
+          "y": 41.65,
+          "ra": 269.4307606055457,
+          "dec": 4.714974847075678
+        },
+        {
+          "mjd": 60912.715639,
+          "x": 34.89,
+          "y": 36.49,
+          "ra": 269.4419788679106,
+          "dec": 4.70615368039395
+        },
+        {
+          "mjd": 60916.656062,
+          "x": 15,
+          "y": 19.76,
+          "ra": 269.4760791610157,
+          "dec": 4.6775750358878465
+        }
+      ],
+      "rate_arcsec_hr": 1.8,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 12,
+      "kind": "fast",
+      "snr": 17.4,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60902.866207,
+          "x": 53.01,
+          "y": 26.46,
+          "ra": 269.4109304272282,
+          "dec": 4.689025014361713
+        },
+        {
+          "mjd": 60911.492097,
+          "x": 55.44,
+          "y": 26.56,
+          "ra": 269.4067525884585,
+          "dec": 4.689202225099935
+        },
+        {
+          "mjd": 60911.493589,
+          "x": 55.39,
+          "y": 25.8,
+          "ra": 269.4068390587213,
+          "dec": 4.687899503926545
+        }
+      ],
+      "rate_arcsec_hr": 0.1,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 13,
+      "kind": "fast",
+      "snr": 15.5,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60902.867699,
+          "x": 37.67,
+          "y": 26.04,
+          "ra": 269.4372087339578,
+          "dec": 4.688304372951644
+        },
+        {
+          "mjd": 60905.854749,
+          "x": 43.62,
+          "y": 14.4,
+          "ra": 269.42701769186635,
+          "dec": 4.668422360088544
+        },
+        {
+          "mjd": 60908.640682,
+          "x": 51.36,
+          "y": 4.35,
+          "ra": 269.41375347284577,
+          "dec": 4.651257543228543
+        }
+      ],
+      "rate_arcsec_hr": 1.1,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 14,
+      "kind": "fast",
+      "snr": 13,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60912.034425,
+          "x": 11.08,
+          "y": 46.51,
+          "ra": 269.4827887854554,
+          "dec": 4.723280681033021
+        },
+        {
+          "mjd": 60914.21253,
+          "x": 22.51,
+          "y": 43.25,
+          "ra": 269.463208129581,
+          "dec": 4.717710369547869
+        },
+        {
+          "mjd": 60917.944517,
+          "x": 42.51,
+          "y": 37.37,
+          "ra": 269.42891731912806,
+          "dec": 4.70767171153483
+        }
+      ],
+      "rate_arcsec_hr": 1.4,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 15,
+      "kind": "fast",
+      "snr": 12.9,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60902.866207,
+          "x": 57.67,
+          "y": 56.23,
+          "ra": 269.40293810764894,
+          "dec": 4.73988380877854
+        },
+        {
+          "mjd": 60911.492097,
+          "x": 28.01,
+          "y": 57.34,
+          "ra": 269.45378223082054,
+          "dec": 4.741772303009762
+        },
+        {
+          "mjd": 60916.726464,
+          "x": 9.39,
+          "y": 56.72,
+          "ra": 269.48570093035784,
+          "dec": 4.740719192104986
+        }
+      ],
+      "rate_arcsec_hr": 0.9,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 16,
+      "kind": "fast",
+      "snr": 12.3,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60908.63919,
+          "x": 16.78,
+          "y": 1.38,
+          "ra": 269.47301739886603,
+          "dec": 4.646174650504576
+        },
+        {
+          "mjd": 60908.642174,
+          "x": 18.19,
+          "y": 1.98,
+          "ra": 269.4706014438101,
+          "dec": 4.647212062953121
+        },
+        {
+          "mjd": 60908.981929,
+          "x": 37.32,
+          "y": 18.19,
+          "ra": 269.43781298838724,
+          "dec": 4.674904812293312
+        }
+      ],
+      "rate_arcsec_hr": 19.8,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 17,
+      "kind": "fast",
+      "snr": 12.2,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60903.139858,
+          "x": 53.82,
+          "y": 38.95,
+          "ra": 269.40952524023396,
+          "dec": 4.710359436578124
+        },
+        {
+          "mjd": 60908.981929,
+          "x": 42.66,
+          "y": 47.5,
+          "ra": 269.4286651541694,
+          "dec": 4.72497604723884
+        },
+        {
+          "mjd": 60912.035917,
+          "x": 35.87,
+          "y": 50.5,
+          "ra": 269.4402969033045,
+          "dec": 4.730099840101434
+        }
+      ],
+      "rate_arcsec_hr": 0.6,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 18,
+      "kind": "fast",
+      "snr": 11.7,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60902.866207,
+          "x": 26.8,
+          "y": 50.57,
+          "ra": 269.4558548025838,
+          "dec": 4.730209829148551
+        },
+        {
+          "mjd": 60908.63919,
+          "x": 41.71,
+          "y": 27.46,
+          "ra": 269.4302865664728,
+          "dec": 4.690735702697077
+        },
+        {
+          "mjd": 60912.717131,
+          "x": 52.61,
+          "y": 11.13,
+          "ra": 269.4116057820618,
+          "dec": 4.662839238294436
+        }
+      ],
+      "rate_arcsec_hr": 1.2,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 19,
+      "kind": "fast",
+      "snr": 11.6,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60902.867699,
+          "x": 21,
+          "y": 6.41,
+          "ra": 269.465796553133,
+          "dec": 4.65476965906208
+        },
+        {
+          "mjd": 60905.854749,
+          "x": 27.47,
+          "y": 12.8,
+          "ra": 269.4546964809863,
+          "dec": 4.665684217267039
+        },
+        {
+          "mjd": 60911.493589,
+          "x": 37.95,
+          "y": 23.6,
+          "ra": 269.43672801003805,
+          "dec": 4.684148067060165
+        }
+      ],
+      "rate_arcsec_hr": 0.7,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 20,
+      "kind": "fast",
+      "snr": 11.4,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60912.715639,
+          "x": 12.87,
+          "y": 43.46,
+          "ra": 269.47972360772945,
+          "dec": 4.718064761912519
+        },
+        {
+          "mjd": 60914.277763,
+          "x": 38.48,
+          "y": 44.83,
+          "ra": 269.43582157390716,
+          "dec": 4.7204105569730945
+        },
+        {
+          "mjd": 60915.434118,
+          "x": 56,
+          "y": 43.81,
+          "ra": 269.40579637557147,
+          "dec": 4.718664951474346
+        }
+      ],
+      "rate_arcsec_hr": 4.1,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 21,
+      "kind": "fast",
+      "snr": 10.7,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60902.866207,
+          "x": 22.5,
+          "y": 2.51,
+          "ra": 269.46321412497656,
+          "dec": 4.648104885320177
+        },
+        {
+          "mjd": 60905.854749,
+          "x": 34.1,
+          "y": 0.75,
+          "ra": 269.4433285432649,
+          "dec": 4.645099194537702
+        },
+        {
+          "mjd": 60908.640682,
+          "x": 44.3,
+          "y": 0.42,
+          "ra": 269.4258554900628,
+          "dec": 4.644547001378828
+        }
+      ],
+      "rate_arcsec_hr": 1,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 22,
+      "kind": "fast",
+      "snr": 9.7,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60912.715639,
+          "x": 19.68,
+          "y": 57.29,
+          "ra": 269.468053307512,
+          "dec": 4.741692146910182
+        },
+        {
+          "mjd": 60916.660556,
+          "x": 24.34,
+          "y": 1.79,
+          "ra": 269.46005576340855,
+          "dec": 4.646887871341388
+        },
+        {
+          "mjd": 60916.72197,
+          "x": 23.44,
+          "y": 0,
+          "ra": 269.4616065656592,
+          "dec": 4.64382324830562
+        }
+      ],
+      "rate_arcsec_hr": 3.6,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 23,
+      "kind": "fast",
+      "snr": 9.3,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60912.715639,
+          "x": 53.78,
+          "y": 34.48,
+          "ra": 269.4095963883978,
+          "dec": 4.7027257792926305
+        },
+        {
+          "mjd": 60914.482593,
+          "x": 51.31,
+          "y": 37.69,
+          "ra": 269.4138421420356,
+          "dec": 4.708214869167464
+        },
+        {
+          "mjd": 60917.67394,
+          "x": 50.47,
+          "y": 42.55,
+          "ra": 269.41526986587155,
+          "dec": 4.716505257066806
+        }
+      ],
+      "rate_arcsec_hr": 0.5,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 24,
+      "kind": "fast",
+      "snr": 8.6,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60905.854749,
+          "x": 55.15,
+          "y": 47.5,
+          "ra": 269.4072461312276,
+          "dec": 4.724962287309471
+        },
+        {
+          "mjd": 60915.434118,
+          "x": 5.47,
+          "y": 58,
+          "ra": 269.49241836555774,
+          "dec": 4.742905450628117
+        },
+        {
+          "mjd": 60915.435611,
+          "x": 5.17,
+          "y": 58,
+          "ra": 269.4929256240304,
+          "dec": 4.742905421012846
+        }
+      ],
+      "rate_arcsec_hr": 1.4,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 25,
+      "kind": "fast",
+      "snr": 8.6,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60908.643666,
+          "x": 48.71,
+          "y": 12.65,
+          "ra": 269.4182858741501,
+          "dec": 4.665438566306538
+        },
+        {
+          "mjd": 60912.717131,
+          "x": 27.51,
+          "y": 27.08,
+          "ra": 269.4546289063613,
+          "dec": 4.690091836355393
+        },
+        {
+          "mjd": 60914.482593,
+          "x": 17.5,
+          "y": 33.08,
+          "ra": 269.47178751448115,
+          "dec": 4.700336049609059
+        }
+      ],
+      "rate_arcsec_hr": 1.6,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 26,
+      "kind": "fast",
+      "snr": 8.6,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60911.493589,
+          "x": 20.6,
+          "y": 6.19,
+          "ra": 269.4664742406963,
+          "dec": 4.654400316522488
+        },
+        {
+          "mjd": 60915.435611,
+          "x": 8.6,
+          "y": 28.63,
+          "ra": 269.4870428046079,
+          "dec": 4.692727445477637
+        },
+        {
+          "mjd": 60917.944517,
+          "x": 1.49,
+          "y": 41.5,
+          "ra": 269.4992290165713,
+          "dec": 4.714709898066126
+        }
+      ],
+      "rate_arcsec_hr": 1.6,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 27,
+      "kind": "fast",
+      "snr": 8.4,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60908.643666,
+          "x": 9.98,
+          "y": 4.5,
+          "ra": 269.4846776856048,
+          "dec": 4.65151032376627
+        },
+        {
+          "mjd": 60911.493589,
+          "x": 4.37,
+          "y": 24.43,
+          "ra": 269.49429698414764,
+          "dec": 4.685563988908795
+        },
+        {
+          "mjd": 60912.718623,
+          "x": 0.39,
+          "y": 33.33,
+          "ra": 269.5011178074321,
+          "dec": 4.700767566265442
+        }
+      ],
+      "rate_arcsec_hr": 1.9,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 28,
+      "kind": "fast",
+      "snr": 8.4,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60915.431134,
+          "x": 48.91,
+          "y": 29.58,
+          "ra": 269.41794222835426,
+          "dec": 4.6943487322728386
+        },
+        {
+          "mjd": 60915.434118,
+          "x": 50.47,
+          "y": 12.17,
+          "ra": 269.4152834849734,
+          "dec": 4.664608446618133
+        },
+        {
+          "mjd": 60915.435611,
+          "x": 50.49,
+          "y": 4.49,
+          "ra": 269.41524385891796,
+          "dec": 4.651490552587401
+        }
+      ],
+      "rate_arcsec_hr": 1500.9,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 29,
+      "kind": "fast",
+      "snr": 8.3,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60914.277763,
+          "x": 53.51,
+          "y": 0,
+          "ra": 269.4100702528612,
+          "dec": 4.643822069648844
+        },
+        {
+          "mjd": 60915.432626,
+          "x": 54.62,
+          "y": 10.78,
+          "ra": 269.40816152579043,
+          "dec": 4.662231393726154
+        },
+        {
+          "mjd": 60916.659064,
+          "x": 53.4,
+          "y": 24.1,
+          "ra": 269.4102548000794,
+          "dec": 4.684991006076885
+        }
+      ],
+      "rate_arcsec_hr": 2.6,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 30,
+      "kind": "fast",
+      "snr": 8.2,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60902.867699,
+          "x": 34.96,
+          "y": 35.56,
+          "ra": 269.4418545189428,
+          "dec": 4.704578480969625
+        },
+        {
+          "mjd": 60908.643666,
+          "x": 36.48,
+          "y": 42.55,
+          "ra": 269.4392579394043,
+          "dec": 4.716518477824501
+        },
+        {
+          "mjd": 60911.493589,
+          "x": 38.87,
+          "y": 46.44,
+          "ra": 269.4351621094445,
+          "dec": 4.723165261599726
+        }
+      ],
+      "rate_arcsec_hr": 0.3,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 31,
+      "kind": "fast",
+      "snr": 8.2,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60903.138366,
+          "x": 32.51,
+          "y": 54.86,
+          "ra": 269.4460549296159,
+          "dec": 4.737541002317
+        },
+        {
+          "mjd": 60908.643666,
+          "x": 34,
+          "y": 54.55,
+          "ra": 269.44350601826034,
+          "dec": 4.737014263757397
+        },
+        {
+          "mjd": 60912.035917,
+          "x": 36.02,
+          "y": 54.46,
+          "ra": 269.4400455763104,
+          "dec": 4.736867391829171
+        }
+      ],
+      "rate_arcsec_hr": 0.1,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; next to a bright star (its residuals can mimic a change); catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "next to a bright star (its residuals can mimic a change)",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 32,
+      "kind": "fast",
+      "snr": 8.1,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60902.867699,
+          "x": 40.39,
+          "y": 33.82,
+          "ra": 269.432546605986,
+          "dec": 4.701593931816903
+        },
+        {
+          "mjd": 60911.490604,
+          "x": 40.55,
+          "y": 48.1,
+          "ra": 269.4322817389435,
+          "dec": 4.7259883742652455
+        },
+        {
+          "mjd": 60914.21253,
+          "x": 40.56,
+          "y": 53.27,
+          "ra": 269.432256425438,
+          "dec": 4.734821858341951
+        }
+      ],
+      "rate_arcsec_hr": 0.4,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 33,
+      "kind": "fast",
+      "snr": 8.1,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60903.139858,
+          "x": 14.48,
+          "y": 19.48,
+          "ra": 269.4769569756301,
+          "dec": 4.677098023210596
+        },
+        {
+          "mjd": 60908.640682,
+          "x": 13.59,
+          "y": 41.52,
+          "ra": 269.47850023695247,
+          "dec": 4.7147454133334605
+        },
+        {
+          "mjd": 60911.492097,
+          "x": 13.52,
+          "y": 53.5,
+          "ra": 269.478612812179,
+          "dec": 4.735213897812929
+        }
+      ],
+      "rate_arcsec_hr": 1,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 34,
+      "kind": "fast",
+      "snr": 8.1,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60905.854749,
+          "x": 33.62,
+          "y": 11.53,
+          "ra": 269.4441592898873,
+          "dec": 4.663526944407254
+        },
+        {
+          "mjd": 60911.490604,
+          "x": 45.57,
+          "y": 25.5,
+          "ra": 269.42367680083424,
+          "dec": 4.687381305918108
+        },
+        {
+          "mjd": 60917.67394,
+          "x": 58,
+          "y": 39.91,
+          "ra": 269.40236729789183,
+          "dec": 4.712006523863893
+        }
+      ],
+      "rate_arcsec_hr": 0.8,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 35,
+      "kind": "fast",
+      "snr": 7.8,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60902.867699,
+          "x": 47.51,
+          "y": 10.09,
+          "ra": 269.4203548115935,
+          "dec": 4.661054310175286
+        },
+        {
+          "mjd": 60911.495081,
+          "x": 34.51,
+          "y": 46.5,
+          "ra": 269.44262646086304,
+          "dec": 4.723256811183164
+        },
+        {
+          "mjd": 60914.279255,
+          "x": 30.16,
+          "y": 57.39,
+          "ra": 269.45008551404374,
+          "dec": 4.741868400981925
+        }
+      ],
+      "rate_arcsec_hr": 1.1,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; next to a bright star (its residuals can mimic a change); catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "next to a bright star (its residuals can mimic a change)",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 36,
+      "kind": "fast",
+      "snr": 7.3,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60902.867699,
+          "x": 5.09,
+          "y": 58,
+          "ra": 269.4930705911324,
+          "dec": 4.742905412481241
+        },
+        {
+          "mjd": 60908.640682,
+          "x": 0.91,
+          "y": 36.33,
+          "ra": 269.5002190674487,
+          "dec": 4.705893673797154
+        },
+        {
+          "mjd": 60911.490604,
+          "x": 0,
+          "y": 25.47,
+          "ra": 269.5017848623314,
+          "dec": 4.687338958233211
+        }
+      ],
+      "rate_arcsec_hr": 1,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 37,
+      "kind": "fast",
+      "snr": 7.3,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60902.867699,
+          "x": 54.42,
+          "y": 47.24,
+          "ra": 269.4084975739676,
+          "dec": 4.72452670993244
+        },
+        {
+          "mjd": 60908.642174,
+          "x": 37.23,
+          "y": 26.22,
+          "ra": 269.4379678357825,
+          "dec": 4.688618183100149
+        },
+        {
+          "mjd": 60915.431134,
+          "x": 16.85,
+          "y": 1.45,
+          "ra": 269.4728988581623,
+          "dec": 4.646296841028471
+        }
+      ],
+      "rate_arcsec_hr": 1.2,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 38,
+      "kind": "fast",
+      "snr": 7.3,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60908.642174,
+          "x": 8.19,
+          "y": 0.59,
+          "ra": 269.4877513145782,
+          "dec": 4.644826949031885
+        },
+        {
+          "mjd": 60912.715639,
+          "x": 33.21,
+          "y": 9.56,
+          "ra": 269.4448532062604,
+          "dec": 4.660159143702027
+        },
+        {
+          "mjd": 60914.21253,
+          "x": 40.92,
+          "y": 13.55,
+          "ra": 269.4316509661296,
+          "dec": 4.666970099985108
+        }
+      ],
+      "rate_arcsec_hr": 1.6,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 39,
+      "kind": "fast",
+      "snr": 7.1,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60908.643666,
+          "x": 16.54,
+          "y": 8,
+          "ra": 269.4734357048527,
+          "dec": 4.657489649073961
+        },
+        {
+          "mjd": 60914.277763,
+          "x": 31.81,
+          "y": 30.62,
+          "ra": 269.44725343993287,
+          "dec": 4.696124448212565
+        },
+        {
+          "mjd": 60914.482593,
+          "x": 32.28,
+          "y": 31.68,
+          "ra": 269.44645064230895,
+          "dec": 4.697938480994433
+        }
+      ],
+      "rate_arcsec_hr": 1.2,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 40,
+      "kind": "fast",
+      "snr": 6.5,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60902.864715,
+          "x": 28.44,
+          "y": 57.72,
+          "ra": 269.4530396902723,
+          "dec": 4.7424251716799075
+        },
+        {
+          "mjd": 60908.63919,
+          "x": 31.5,
+          "y": 58,
+          "ra": 269.4477977055984,
+          "dec": 4.742906607728813
+        },
+        {
+          "mjd": 60912.717131,
+          "x": 32.84,
+          "y": 57.19,
+          "ra": 269.44549844792436,
+          "dec": 4.741519730353288
+        }
+      ],
+      "rate_arcsec_hr": 0.1,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; next to a bright star (its residuals can mimic a change); catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "next to a bright star (its residuals can mimic a change)",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 41,
+      "kind": "fast",
+      "snr": 6.5,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60911.495081,
+          "x": 1.2,
+          "y": 56.6,
+          "ra": 269.49972524362806,
+          "dec": 4.74050719658343
+        },
+        {
+          "mjd": 60912.037409,
+          "x": 3.51,
+          "y": 52,
+          "ra": 269.49577459151936,
+          "dec": 4.732655256933322
+        },
+        {
+          "mjd": 60914.277763,
+          "x": 16.55,
+          "y": 38.07,
+          "ra": 269.4734109899216,
+          "dec": 4.708863247142763
+        }
+      ],
+      "rate_arcsec_hr": 2.2,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 42,
+      "kind": "fast",
+      "snr": 6.4,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60905.853257,
+          "x": 9.19,
+          "y": 53.47,
+          "ra": 269.4860292059698,
+          "dec": 4.735171428629493
+        },
+        {
+          "mjd": 60912.718623,
+          "x": 28,
+          "y": 57.51,
+          "ra": 269.4537911591239,
+          "dec": 4.742070981424844
+        },
+        {
+          "mjd": 60914.484085,
+          "x": 31.73,
+          "y": 57.59,
+          "ra": 269.44739728995404,
+          "dec": 4.7422024691781335
+        }
+      ],
+      "rate_arcsec_hr": 0.7,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; near the edge of the field; next to a bright star (its residuals can mimic a change); catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "near the edge of the field",
+        "next to a bright star (its residuals can mimic a change)",
+        "catalog check unavailable"
+      ]
+    },
+    {
+      "id": 43,
+      "kind": "fast",
+      "snr": 6.2,
+      "support": 3,
+      "points": [
+        {
+          "mjd": 60911.492097,
+          "x": 38.5,
+          "y": 35,
+          "ra": 269.4357888867214,
+          "dec": 4.70361477725786
+        },
+        {
+          "mjd": 60912.715639,
+          "x": 30.93,
+          "y": 29.49,
+          "ra": 269.4487638339481,
+          "dec": 4.694200467038497
+        },
+        {
+          "mjd": 60915.434118,
+          "x": 13.36,
+          "y": 19.33,
+          "ra": 269.47888791576355,
+          "dec": 4.6768531765890495
+        }
+      ],
+      "rate_arcsec_hr": 1.9,
+      "epoch": 0,
+      "matches": {
+        "gaia": null,
+        "allwise": null,
+        "asteroid": null
+      },
+      "gaia": null,
+      "verdict_class": "inconclusive",
+      "verdict": "Inconclusive: only 3 detections; catalog check unavailable",
+      "reasons": [
+        "only 3 detections",
+        "catalog check unavailable"
+      ]
+    }
+  ],
+  "summary": {
+    "known": 0,
+    "unmatched": 0,
+    "inconclusive": 43
+  },
+  "provenance": {
+    "tool": "SPHEREx Sky Motion Viewer",
+    "version": "1.0",
+    "run_utc": "2026-11-14T16:03:22Z",
+    "target": {
+      "ra_deg": 269.4520769586187,
+      "dec_deg": 4.69336496657667,
+      "fov_deg": 0.1,
+      "detector": "all",
+      "grid_px": 59,
+      "pixel_arcsec": 6.15
+    },
+    "parameters": {
+      "sigma": 4,
+      "lam_min_um": null,
+      "lam_max_um": null,
+      "date_from_mjd": 60902,
+      "date_to_mjd": 60950,
+      "match_dlam_um": 0.03,
+      "smooth_sigma_px": 1,
+      "move_flux_frac": 0.35,
+      "var_flux_frac": 0.15,
+      "fast_sigma": 6,
+      "max_pm_arcsec_yr": 30,
+      "min_frame_coverage": 0.7
+    },
+    "data": {
+      "archive": "NASA/IPAC Infrared Science Archive (IRSA)",
+      "releases": [
+        "7.0.5"
+      ],
+      "n_frames": 85,
+      "frames": [
+        {
+          "id": "f2f04c700b856e2ffe6b",
+          "epoch": 0,
+          "mjd": 60902.864715,
+          "det": "D6",
+          "lam_um": 4.915540720850351,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W33_2C/l2b-v27-2026-228/6/level2_2025W33_2C_0321_1D6_spx_l2b-v27-2026-228.fits"
+        },
+        {
+          "id": "6cb85697686c80a5d952",
+          "epoch": 0,
+          "mjd": 60902.864715,
+          "det": "D3",
+          "lam_um": 2.288081681346883,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W33_2C/l2b-v27-2026-228/3/level2_2025W33_2C_0321_1D3_spx_l2b-v27-2026-228.fits"
+        },
+        {
+          "id": "01b13793cf59b0c8a0f2",
+          "epoch": 0,
+          "mjd": 60902.866207,
+          "det": "D6",
+          "lam_um": 4.9514667223849305,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W33_2C/l2b-v27-2026-228/6/level2_2025W33_2C_0321_2D6_spx_l2b-v27-2026-228.fits"
+        },
+        {
+          "id": "4f4722881b5856a5a20a",
+          "epoch": 0,
+          "mjd": 60902.866207,
+          "det": "D3",
+          "lam_um": 2.3405888932966645,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W33_2C/l2b-v27-2026-228/3/level2_2025W33_2C_0321_2D3_spx_l2b-v27-2026-228.fits"
+        },
+        {
+          "id": "7e1e671df2a5a42cc020",
+          "epoch": 0,
+          "mjd": 60902.867699,
+          "det": "D6",
+          "lam_um": 4.987500007290949,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W33_2C/l2b-v27-2026-228/6/level2_2025W33_2C_0321_3D6_spx_l2b-v27-2026-228.fits"
+        },
+        {
+          "id": "c01196fcac6e6ddc8891",
+          "epoch": 0,
+          "mjd": 60902.867699,
+          "det": "D3",
+          "lam_um": 2.393461143376646,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W33_2C/l2b-v27-2026-228/3/level2_2025W33_2C_0321_3D3_spx_l2b-v27-2026-228.fits"
+        },
+        {
+          "id": "1457471fbe7c390b86b0",
+          "epoch": 0,
+          "mjd": 60903.138366,
+          "det": "D6",
+          "lam_um": 4.406565142331326,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W33_2C/l2b-v27-2026-228/6/level2_2025W33_2C_0386_3D6_spx_l2b-v27-2026-228.fits"
+        },
+        {
+          "id": "5af74b5414a50cdf15f5",
+          "epoch": 0,
+          "mjd": 60903.139858,
+          "det": "D6",
+          "lam_um": 4.438142578889481,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W33_2C/l2b-v27-2026-228/6/level2_2025W33_2C_0386_4D6_spx_l2b-v27-2026-228.fits"
+        },
+        {
+          "id": "7ad5310852afd7c7d503",
+          "epoch": 0,
+          "mjd": 60903.139858,
+          "det": "D3",
+          "lam_um": 1.6556424148580566,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W33_2C/l2b-v27-2026-228/3/level2_2025W33_2C_0386_4D3_spx_l2b-v27-2026-228.fits"
+        },
+        {
+          "id": "946ba142a9780fc09ad5",
+          "epoch": 0,
+          "mjd": 60905.853257,
+          "det": "D3",
+          "lam_um": 1.6932580000951627,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_1B/l2b-v27-2026-228/3/level2_2025W34_1B_0164_1D3_spx_l2b-v27-2026-228.fits"
+        },
+        {
+          "id": "2fb49a61905af1c6e1ac",
+          "epoch": 0,
+          "mjd": 60905.853257,
+          "det": "D6",
+          "lam_um": 4.469587612691354,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_1B/l2b-v27-2026-228/6/level2_2025W34_1B_0164_1D6_spx_l2b-v27-2026-228.fits"
+        },
+        {
+          "id": "ec48919e7278864f2789",
+          "epoch": 0,
+          "mjd": 60905.854749,
+          "det": "D3",
+          "lam_um": 1.7328658583998844,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_1B/l2b-v27-2026-228/3/level2_2025W34_1B_0164_2D3_spx_l2b-v27-2026-228.fits"
+        },
+        {
+          "id": "f90e2dbfaeb7d7845b53",
+          "epoch": 0,
+          "mjd": 60905.854749,
+          "det": "D6",
+          "lam_um": 4.502215064800467,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_1B/l2b-v27-2026-228/6/level2_2025W34_1B_0164_2D6_spx_l2b-v27-2026-228.fits"
+        },
+        {
+          "id": "b15049694bf236fc74a1",
+          "epoch": 0,
+          "mjd": 60905.856241,
+          "det": "D3",
+          "lam_um": 1.772626606439786,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_1B/l2b-v27-2026-228/3/level2_2025W34_1B_0164_3D3_spx_l2b-v27-2026-228.fits"
+        },
+        {
+          "id": "b1871032410035f657f5",
+          "epoch": 0,
+          "mjd": 60908.63919,
+          "det": "D6",
+          "lam_um": 4.567952861367273,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_2B/l2b-v27-2026-229/6/level2_2025W34_2B_0030_1D6_spx_l2b-v27-2026-229.fits"
+        },
+        {
+          "id": "a66d99121a826f7f9d16",
+          "epoch": 0,
+          "mjd": 60908.63919,
+          "det": "D3",
+          "lam_um": 1.8144063961161783,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_2B/l2b-v27-2026-229/3/level2_2025W34_2B_0030_1D3_spx_l2b-v27-2026-229.fits"
+        },
+        {
+          "id": "31e0c68f22bba896d15a",
+          "epoch": 0,
+          "mjd": 60908.640682,
+          "det": "D3",
+          "lam_um": 1.8567683389386884,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_2B/l2b-v27-2026-229/3/level2_2025W34_2B_0030_2D3_spx_l2b-v27-2026-229.fits"
+        },
+        {
+          "id": "60d0b1b209bb2a7ec4c7",
+          "epoch": 0,
+          "mjd": 60908.640682,
+          "det": "D6",
+          "lam_um": 4.601230448972551,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_2B/l2b-v27-2026-229/6/level2_2025W34_2B_0030_2D6_spx_l2b-v27-2026-229.fits"
+        },
+        {
+          "id": "afba5867b29423d0314a",
+          "epoch": 0,
+          "mjd": 60908.642174,
+          "det": "D3",
+          "lam_um": 1.9002701382698899,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_2B/l2b-v27-2026-229/3/level2_2025W34_2B_0030_3D3_spx_l2b-v27-2026-229.fits"
+        },
+        {
+          "id": "314d668edbad62a2796a",
+          "epoch": 0,
+          "mjd": 60908.642174,
+          "det": "D6",
+          "lam_um": 4.63473552569505,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_2B/l2b-v27-2026-229/6/level2_2025W34_2B_0030_3D6_spx_l2b-v27-2026-229.fits"
+        },
+        {
+          "id": "35fcc1db3f3d0a79769f",
+          "epoch": 0,
+          "mjd": 60908.643666,
+          "det": "D3",
+          "lam_um": 1.9440951974993075,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_2B/l2b-v27-2026-229/3/level2_2025W34_2B_0030_4D3_spx_l2b-v27-2026-229.fits"
+        },
+        {
+          "id": "f143a23964db904aef63",
+          "epoch": 0,
+          "mjd": 60908.643666,
+          "det": "D6",
+          "lam_um": 4.668519365420409,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_2B/l2b-v27-2026-229/6/level2_2025W34_2B_0030_4D6_spx_l2b-v27-2026-229.fits"
+        },
+        {
+          "id": "05278c6a84430c4587a3",
+          "epoch": 0,
+          "mjd": 60908.981929,
+          "det": "D5",
+          "lam_um": 3.808985025007586,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_2B/l2b-v27-2026-229/5/level2_2025W34_2B_0090_4D5_spx_l2b-v27-2026-229.fits"
+        },
+        {
+          "id": "0d46cefa6ac8ba527cc3",
+          "epoch": 0,
+          "mjd": 60908.981929,
+          "det": "D2",
+          "lam_um": 1.0914486062319666,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_2B/l2b-v27-2026-229/2/level2_2025W34_2B_0090_4D2_spx_l2b-v27-2026-229.fits"
+        },
+        {
+          "id": "20d80240689c49e202e7",
+          "epoch": 0,
+          "mjd": 60911.490604,
+          "det": "D2",
+          "lam_um": 1.117027989650253,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_2B/l2b-v27-2026-229/2/level2_2025W34_2B_0557_1D2_spx_l2b-v27-2026-229.fits"
+        },
+        {
+          "id": "bb309ee16d37ad768a5c",
+          "epoch": 0,
+          "mjd": 60911.490604,
+          "det": "D5",
+          "lam_um": 3.8420247047357616,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_2B/l2b-v27-2026-229/5/level2_2025W34_2B_0557_1D5_spx_l2b-v27-2026-229.fits"
+        },
+        {
+          "id": "59eefe806a4f3faefdf7",
+          "epoch": 0,
+          "mjd": 60911.492097,
+          "det": "D5",
+          "lam_um": 3.875383928761045,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_2B/l2b-v27-2026-229/5/level2_2025W34_2B_0557_2D5_spx_l2b-v27-2026-229.fits"
+        },
+        {
+          "id": "2e1e9809faf3cede7f7e",
+          "epoch": 0,
+          "mjd": 60911.492097,
+          "det": "D2",
+          "lam_um": 1.143440284031129,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_2B/l2b-v27-2026-229/2/level2_2025W34_2B_0557_2D2_spx_l2b-v27-2026-229.fits"
+        },
+        {
+          "id": "69e6be58b2d776834813",
+          "epoch": 0,
+          "mjd": 60911.493589,
+          "det": "D2",
+          "lam_um": 1.1708298794971697,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_2B/l2b-v27-2026-229/2/level2_2025W34_2B_0557_3D2_spx_l2b-v27-2026-229.fits"
+        },
+        {
+          "id": "55465bf5dac69245cc56",
+          "epoch": 0,
+          "mjd": 60911.493589,
+          "det": "D5",
+          "lam_um": 3.9088693667727483,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_2B/l2b-v27-2026-229/5/level2_2025W34_2B_0557_3D5_spx_l2b-v27-2026-229.fits"
+        },
+        {
+          "id": "6be1482ea9fc93edd7a0",
+          "epoch": 0,
+          "mjd": 60911.495081,
+          "det": "D2",
+          "lam_um": 1.198920949255048,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_2B/l2b-v27-2026-229/2/level2_2025W34_2B_0557_4D2_spx_l2b-v27-2026-229.fits"
+        },
+        {
+          "id": "8591c022e0c58c1293db",
+          "epoch": 0,
+          "mjd": 60911.495081,
+          "det": "D5",
+          "lam_um": 3.9429206514675283,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_2B/l2b-v27-2026-229/5/level2_2025W34_2B_0557_4D5_spx_l2b-v27-2026-229.fits"
+        },
+        {
+          "id": "42297600168b783a9d67",
+          "epoch": 0,
+          "mjd": 60912.034425,
+          "det": "D6",
+          "lam_um": 4.702330260919729,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/6/level2_2025W35_1A_0008_1D6_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "31c0a42f4c4f8a6a9e19",
+          "epoch": 0,
+          "mjd": 60912.034425,
+          "det": "D3",
+          "lam_um": 1.9890813364253788,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/3/level2_2025W35_1A_0008_1D3_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "e0202f77cb7d149931bf",
+          "epoch": 0,
+          "mjd": 60912.035917,
+          "det": "D3",
+          "lam_um": 2.034831505429617,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/3/level2_2025W35_1A_0008_2D3_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "adde0c1d3cebf7bb1fda",
+          "epoch": 0,
+          "mjd": 60912.035917,
+          "det": "D6",
+          "lam_um": 4.737010742137595,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/6/level2_2025W35_1A_0008_2D6_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "296569ab1d9e8ea90593",
+          "epoch": 0,
+          "mjd": 60912.037409,
+          "det": "D6",
+          "lam_um": 4.771693257452278,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/6/level2_2025W35_1A_0008_3D6_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "938e7396e8bb5dca3027",
+          "epoch": 0,
+          "mjd": 60912.037409,
+          "det": "D3",
+          "lam_um": 2.0823988494192998,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/3/level2_2025W35_1A_0008_3D3_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "1dc5a3a0ddfeee95e2da",
+          "epoch": 0,
+          "mjd": 60912.038901,
+          "det": "D3",
+          "lam_um": 2.1308738057982373,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/3/level2_2025W35_1A_0008_4D3_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "8d09828d66ff4846eecf",
+          "epoch": 0,
+          "mjd": 60912.714147,
+          "det": "D2",
+          "lam_um": 1.503029141869616,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/2/level2_2025W35_1A_0146_1D2_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "65a392a33e1425f637d3",
+          "epoch": 0,
+          "mjd": 60912.714147,
+          "det": "D5",
+          "lam_um": 4.282243805064789,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/5/level2_2025W35_1A_0146_1D5_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "1298968e4084838f6f8b",
+          "epoch": 0,
+          "mjd": 60912.715639,
+          "det": "D2",
+          "lam_um": 1.5393748328947972,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/2/level2_2025W35_1A_0146_2D2_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "9331f98bc5323d8f8936",
+          "epoch": 0,
+          "mjd": 60912.715639,
+          "det": "D5",
+          "lam_um": 4.318680796110123,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/5/level2_2025W35_1A_0146_2D5_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "10fa83dc179cc22da3f8",
+          "epoch": 0,
+          "mjd": 60912.717131,
+          "det": "D2",
+          "lam_um": 1.5766942781344426,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/2/level2_2025W35_1A_0146_3D2_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "e9004227984ea9777f18",
+          "epoch": 0,
+          "mjd": 60912.717131,
+          "det": "D5",
+          "lam_um": 4.355722618024561,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/5/level2_2025W35_1A_0146_3D5_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "e3c3a9802beeed3eaf4c",
+          "epoch": 0,
+          "mjd": 60912.718623,
+          "det": "D2",
+          "lam_um": 1.6145039868377766,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/2/level2_2025W35_1A_0146_4D2_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "d26a2c630288630b772c",
+          "epoch": 0,
+          "mjd": 60912.718623,
+          "det": "D5",
+          "lam_um": 4.392870291998974,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/5/level2_2025W35_1A_0146_4D5_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "9f9014024c546644086c",
+          "epoch": 0,
+          "mjd": 60914.21253,
+          "det": "D1",
+          "lam_um": 0.7436642687004679,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/1/level2_2025W35_1A_0432_4D1_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "4369fd059ed735f65d90",
+          "epoch": 0,
+          "mjd": 60914.21253,
+          "det": "D4",
+          "lam_um": 2.4251328909297536,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/4/level2_2025W35_1A_0432_4D4_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "f154aec7b96712402c79",
+          "epoch": 0,
+          "mjd": 60914.276271,
+          "det": "D5",
+          "lam_um": 3.977072840780171,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/5/level2_2025W35_1A_0444_1D5_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "84a1bd3ae9bfdb2f50b7",
+          "epoch": 0,
+          "mjd": 60914.277763,
+          "det": "D5",
+          "lam_um": 4.01197894911938,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/5/level2_2025W35_1A_0444_2D5_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "021f47f455b200ebb95f",
+          "epoch": 0,
+          "mjd": 60914.277763,
+          "det": "D2",
+          "lam_um": 1.2568901790571165,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/2/level2_2025W35_1A_0444_2D2_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "7f373a07dea80d29611b",
+          "epoch": 0,
+          "mjd": 60914.279255,
+          "det": "D5",
+          "lam_um": 4.046986331092545,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/5/level2_2025W35_1A_0444_3D5_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "a24dae3f1d1a5bf560d4",
+          "epoch": 0,
+          "mjd": 60914.279255,
+          "det": "D2",
+          "lam_um": 1.2867102328295914,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/2/level2_2025W35_1A_0444_3D2_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "ef404d1def84cec61f98",
+          "epoch": 0,
+          "mjd": 60914.280748,
+          "det": "D2",
+          "lam_um": 1.3174761051969643,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/2/level2_2025W35_1A_0444_4D2_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "e17a9c4cc47bcc6db0b9",
+          "epoch": 0,
+          "mjd": 60914.280748,
+          "det": "D5",
+          "lam_um": 4.082355472418769,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/5/level2_2025W35_1A_0444_4D5_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "e86745e83aa73d35823d",
+          "epoch": 0,
+          "mjd": 60914.482593,
+          "det": "D3",
+          "lam_um": 2.180382531885744,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/3/level2_2025W35_1A_0484_1D3_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "d05d0dc042f14e1413b4",
+          "epoch": 0,
+          "mjd": 60914.482593,
+          "det": "D6",
+          "lam_um": 4.840540388538887,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/6/level2_2025W35_1A_0484_1D6_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "34aa518d66169d8d7956",
+          "epoch": 0,
+          "mjd": 60914.484085,
+          "det": "D3",
+          "lam_um": 2.230944337203792,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/3/level2_2025W35_1A_0484_2D3_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "14feb1f44b9972de98c3",
+          "epoch": 0,
+          "mjd": 60914.484085,
+          "det": "D6",
+          "lam_um": 4.876108772842258,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/6/level2_2025W35_1A_0484_2D6_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "cb453c2584585664b202",
+          "epoch": 0,
+          "mjd": 60914.616398,
+          "det": "D2",
+          "lam_um": 1.6528227962237239,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/2/level2_2025W35_1A_0511_1D2_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "5823f85bccb63feb1ea3",
+          "epoch": 0,
+          "mjd": 60915.431134,
+          "det": "D1",
+          "lam_um": 0.7607871140261728,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/1/level2_2025W35_1A_0658_1D1_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "e2bea043a37783e8a712",
+          "epoch": 0,
+          "mjd": 60915.431134,
+          "det": "D4",
+          "lam_um": 2.4732862816247776,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/4/level2_2025W35_1A_0658_1D4_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "40850cca5e0f5e045234",
+          "epoch": 0,
+          "mjd": 60915.432626,
+          "det": "D1",
+          "lam_um": 0.7781679737679453,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/1/level2_2025W35_1A_0658_2D1_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "ceff7f33d1fd337c180d",
+          "epoch": 0,
+          "mjd": 60915.434118,
+          "det": "D1",
+          "lam_um": 0.796978898909574,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/1/level2_2025W35_1A_0658_3D1_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "c43769bf7338522ebb7d",
+          "epoch": 0,
+          "mjd": 60915.434118,
+          "det": "D4",
+          "lam_um": 2.6090211963652066,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/4/level2_2025W35_1A_0658_3D4_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "688d28f530b268d2e8b0",
+          "epoch": 0,
+          "mjd": 60915.435611,
+          "det": "D4",
+          "lam_um": 2.6803713830581186,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/4/level2_2025W35_1A_0658_4D4_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "e094b30eee6b9aaa4226",
+          "epoch": 0,
+          "mjd": 60915.435611,
+          "det": "D1",
+          "lam_um": 0.815799336193549,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/1/level2_2025W35_1A_0658_4D1_spx_l2b-v27-2026-230.fits"
+        },
+        {
+          "id": "eafb0bca8c3d07808388",
+          "epoch": 0,
+          "mjd": 60916.656062,
+          "det": "D5",
+          "lam_um": 4.117682170741608,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_2A/l2b-v27-2026-231/5/level2_2025W35_2A_0221_1D5_spx_l2b-v27-2026-231.fits"
+        },
+        {
+          "id": "808c022e10c550e46640",
+          "epoch": 0,
+          "mjd": 60916.657572,
+          "det": "D2",
+          "lam_um": 1.3806687920497445,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_2A/l2b-v27-2026-231/2/level2_2025W35_2A_0221_2D2_spx_l2b-v27-2026-231.fits"
+        },
+        {
+          "id": "29267e7a18c5e7ceeaf6",
+          "epoch": 0,
+          "mjd": 60916.657572,
+          "det": "D5",
+          "lam_um": 4.153417150120396,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_2A/l2b-v27-2026-231/5/level2_2025W35_2A_0221_2D5_spx_l2b-v27-2026-231.fits"
+        },
+        {
+          "id": "efb9dceaab6258efa8de",
+          "epoch": 0,
+          "mjd": 60916.659064,
+          "det": "D2",
+          "lam_um": 1.413759686402791,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_2A/l2b-v27-2026-231/2/level2_2025W35_2A_0221_3D2_spx_l2b-v27-2026-231.fits"
+        },
+        {
+          "id": "d56d98d1875a8bae4251",
+          "epoch": 0,
+          "mjd": 60916.659064,
+          "det": "D5",
+          "lam_um": 4.189343857077096,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_2A/l2b-v27-2026-231/5/level2_2025W35_2A_0221_3D5_spx_l2b-v27-2026-231.fits"
+        },
+        {
+          "id": "a4e974609985d3aef169",
+          "epoch": 0,
+          "mjd": 60916.660556,
+          "det": "D5",
+          "lam_um": 4.225376631081751,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_2A/l2b-v27-2026-231/5/level2_2025W35_2A_0221_4D5_spx_l2b-v27-2026-231.fits"
+        },
+        {
+          "id": "df8c4015ab53a1d5fa29",
+          "epoch": 0,
+          "mjd": 60916.660556,
+          "det": "D2",
+          "lam_um": 1.4475910741953109,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_2A/l2b-v27-2026-231/2/level2_2025W35_2A_0221_4D2_spx_l2b-v27-2026-231.fits"
+        },
+        {
+          "id": "7117c57b8b08e3bd4a47",
+          "epoch": 0,
+          "mjd": 60916.72197,
+          "det": "D4",
+          "lam_um": 3.472558132033709,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_2A/l2b-v27-2026-231/4/level2_2025W35_2A_0233_1D4_spx_l2b-v27-2026-231.fits"
+        },
+        {
+          "id": "f455456f6036cf57d30b",
+          "epoch": 0,
+          "mjd": 60916.72197,
+          "det": "D1",
+          "lam_um": 1.022575599060739,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_2A/l2b-v27-2026-231/1/level2_2025W35_2A_0233_1D1_spx_l2b-v27-2026-231.fits"
+        },
+        {
+          "id": "e6863277efa08e2d2a74",
+          "epoch": 0,
+          "mjd": 60916.72348,
+          "det": "D4",
+          "lam_um": 3.5666431304677313,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_2A/l2b-v27-2026-231/4/level2_2025W35_2A_0233_2D4_spx_l2b-v27-2026-231.fits"
+        },
+        {
+          "id": "4e6af6fbeba9a6e7277a",
+          "epoch": 0,
+          "mjd": 60916.724972,
+          "det": "D1",
+          "lam_um": 1.0718259434557877,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_2A/l2b-v27-2026-231/1/level2_2025W35_2A_0233_3D1_spx_l2b-v27-2026-231.fits"
+        },
+        {
+          "id": "9f87dfd183e86c7223c3",
+          "epoch": 0,
+          "mjd": 60916.726464,
+          "det": "D4",
+          "lam_um": 3.7622130993675476,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_2A/l2b-v27-2026-231/4/level2_2025W35_2A_0233_4D4_spx_l2b-v27-2026-231.fits"
+        },
+        {
+          "id": "29a68d0dd0f62cc478f2",
+          "epoch": 0,
+          "mjd": 60917.67394,
+          "det": "D5",
+          "lam_um": 4.261604385695696,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_2A/l2b-v27-2026-231/5/level2_2025W35_2A_0418_1D5_spx_l2b-v27-2026-231.fits"
+        },
+        {
+          "id": "0da3784b5d65d356566d",
+          "epoch": 0,
+          "mjd": 60917.67394,
+          "det": "D2",
+          "lam_um": 1.482658232745581,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_2A/l2b-v27-2026-231/2/level2_2025W35_2A_0418_1D2_spx_l2b-v27-2026-231.fits"
+        },
+        {
+          "id": "1b8321fb85ff9045e690",
+          "epoch": 0,
+          "mjd": 60917.944517,
+          "det": "D4",
+          "lam_um": 2.7526211559332414,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_2A/l2b-v27-2026-231/4/level2_2025W35_2A_0474_1D4_spx_l2b-v27-2026-231.fits"
+        },
+        {
+          "id": "c72c3e3e5aba0fdff361",
+          "epoch": 0,
+          "mjd": 60917.947502,
+          "det": "D1",
+          "lam_um": 0.8751291406478671,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_2A/l2b-v27-2026-231/1/level2_2025W35_2A_0474_3D1_spx_l2b-v27-2026-231.fits"
+        },
+        {
+          "id": "d419560eeec80ac5ba1e",
+          "epoch": 0,
+          "mjd": 60917.948994,
+          "det": "D1",
+          "lam_um": 0.8958861789923275,
+          "release": "7.0.5",
+          "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_2A/l2b-v27-2026-231/1/level2_2025W35_2A_0474_4D1_spx_l2b-v27-2026-231.fits"
+        }
+      ]
+    },
+    "epoch_pairs": [],
+    "catalogs": {
+      "gaia": {
+        "table": "gaiadr3.gaia_source",
+        "via": "ESA Gaia Archive",
+        "error": null
+      },
+      "allwise": {
+        "table": "AllWISE (II/328 / allwise_p3as_psd)",
+        "via": "IRSA",
+        "error": null
+      },
+      "asteroids": {
+        "service": "IMCCE SkyBoT (geocentric)",
+        "queries": 10,
+        "error": null
+      }
+    }
+  }
+}
