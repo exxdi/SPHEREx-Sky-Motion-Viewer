@@ -249,3 +249,49 @@ RW Aurigae and R Draconis (Light curve tab).
   by the National Aeronautics and Space Administration.*
 - Gaia DR3, ESA — DOI 10.5270/esa-qa4lep3.
 - Built with Astropy, Astroquery, reproject, FastAPI; sky atlas link to Aladin Lite (CDS).
+
+### When IRSA is down
+If IRSA does not answer, the site uses a saved frame list: first the one for this exact point,
+otherwise the one for a point up to 15′ away (SPHEREx frames are ~3.5° wide, so it is the same set
+of frames). Example: Barnard's Star is now searched at its 2026 position, 4.5′ from J2000; an old
+J2000 list still works. The status line says which list is used. After a failure the server waits
+60 s before asking IRSA again, so clicks don't hang. Run `python warmup.py` on a good connection
+before a demo — then the example objects work even with IRSA offline.
+
+### Running on Flask
+The same site and API also run on Flask — all logic stays in `api.py`, `flask_app.py` registers
+every `/api/...` route in Flask:
+
+    pip install flask waitress
+    python flask_app.py                  # http://127.0.0.1:5050/
+    python flask_app.py --host 0.0.0.0   # open to other computers in the network
+
+For WSGI hosting (PythonAnywhere, gunicorn, waitress-serve) the app object is `flask_app:app`.
+FastAPI must stay installed (api.py imports it); `/docs` exists only with `python api.py`.
+
+### No time limit on the IRSA search
+`/api/search` never fails just because IRSA is slow. Each request waits up to 20 s (`SEARCH_POLL_S`)
+and, if IRSA has not answered yet, returns `{"pending": true, "elapsed_s": …}`; the site immediately
+asks again and keeps showing a seconds counter. On the server there is one IRSA query per sky point,
+running until IRSA answers. Short HTTP requests also survive tunnels and hosts that cut long requests.
+If a saved frame list exists (this point earlier, or a point up to 15′ away), it is shown after
+5 s (`SAVED_WAIT_S`) while the IRSA query finishes in the background and refreshes the cache.
+An IRSA attempt that hangs longer than 180 s (`IRSA_RESTART_S`) gets a second attempt next to it.
+
+### Find, overlays and spectrum when archives are slow
+- Find, the spectrum, frame images and stacks never wait for the IRSA search: if any saved frame
+  list exists (this point or one up to 15′ away) they use it at once and IRSA is asked in the
+  background (at most once a minute after a failure).
+- Gaia: ESA Gaia Archive -> VizieR (CDS, Strasbourg) -> VizieR mirror at CfA (Harvard).
+  AllWISE: VizieR (CDS) -> VizieR CfA mirror -> NOIRLab Astro Data Lab (`allwise.source`) -> IRSA.
+  The next source starts when the previous one fails or stays silent for 6 s / 8 s
+  (`GAIA_HEAD_S`, `WISE_HEAD_S`); the first answer wins and is named in the overlay status and
+  in the data package. The console names each failed source with its HTTP code.
+- Both overlays load in parallel with the frames. If a catalog answers 504 ("still loading in the
+  background"), the page retries by itself every 20 s for ~3 minutes.
+- Spectrum: click a star — near a Gaia star (or the target itself) the click snaps to it, and for a
+  moving star the aperture follows its proper motion in every frame (Barnard's Star moves ~1.7 SPHEREx
+  pixels a year). The wavelength is measured at the star's own position on the detector. Selecting a
+  Find candidate measures it along its track. The spectrum refreshes when all frames have loaded.
+  `/api/spectrum` takes `pmra`, `pmdec` (mas/yr) and `pm_year` and reports skipped frames.
+

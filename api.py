@@ -51,6 +51,7 @@ from reproject import reproject_interp                           # noqa: E402
 import detect                                                     # noqa: E402  (поиск объектов)
 import results_package                                            # noqa: E402  (пакет результатов)
 
+warnings.filterwarnings("ignore", message="No objects were found")   # SkyBoT: астероїдів у полі немає — це нормально
 from astropy import log as astropy_log                          # noqa: E402
 astropy_log.setLevel("WARNING")   # прячем шум "Inconsistent SIP distortion..." (он безвреден)
 warnings.filterwarnings("ignore", category=FITSFixedWarning)
@@ -164,13 +165,27 @@ def search_cache_info(ra: float, dec: float) -> dict:
     """Когда реально выполнялся поиск в IRSA (время записи кэша) и сколько кадров нашлось."""
     path = CACHE / "search" / f"{_key(round(ra, 4), round(dec, 4))}.json"
     if not path.exists():
+        near = _NEARBY_USED.get(path.name)            # IRSA не відповів: узяли список сусідньої точки
+        if near:
+            p = _search_path(near["ra"], near["dec"])
+            n = len(json.loads(p.read_text())) if p.exists() else None
+            return {"retrieved_utc": near["retrieved_utc"], "result_count": n,
+                    "list_from_nearby_point": {k: near[k] for k in ("ra", "dec", "sep_arcmin")}}
         return {"retrieved_utc": None, "result_count": None}
     return {"retrieved_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(path.stat().st_mtime)),
             "result_count": len(json.loads(path.read_text()))}
 
 
-IRSA_WAIT_S = float(os.environ.get("IRSA_WAIT_S", 45))   # довше сторінка не чекає; пошук іде далі у фоні
-_SEARCH_POOL = ThreadPoolExecutor(4, thread_name_prefix="irsa-search")
+SAVED_WAIT_S = float(os.environ.get("SAVED_WAIT_S", 5))       # є збережений список -> чекаємо IRSA лише стільки
+IRSA_RESTART_S = float(os.environ.get("IRSA_RESTART_S", 180))  # спроба висить довше -> запускаємо нову
+SEARCH_POLL_S = float(os.environ.get("SEARCH_POLL_S", 20))  # один HTTP-запит /api/search триває не довше; сайт питає знову
+
+
+class SearchPending(Exception):
+    """IRSA ще відповідає: запит іде у фоні, сайт спитає ще раз (без помилки й без ліміту часу)."""
+    def __init__(self, elapsed: float):
+        super().__init__(f"IRSA search still running ({elapsed:.0f} s)")
+        self.elapsed = elapsed
 _SEARCH_RUNNING: dict = {}                                 # точка -> Future (повторний клік не дублює запит)
 _SEARCH_LOCK = threading.Lock()
 
@@ -203,11 +218,154 @@ def _wait(fut, seconds):
         raise
 
 
+NEARBY_DEG = float(os.environ.get("NEARBY_DEG", 0.25))   # кадр SPHEREx ~3.5°: сусідня точка бачить ті самі кадри
+_SEARCH_INDEX = CACHE / "search" / "index.json"           # файл кешу -> (ra, dec), щоб знайти сусідні пошуки
+_SEARCH_FAILED: dict = {}                                  # файл -> час останньої невдачі IRSA (не мучимо IRSA щосекунди)
+FAIL_PAUSE_S = 60.0
+
+
+def _search_path(ra: float, dec: float) -> Path:
+    return CACHE / "search" / f"{_key(round(ra, 4), round(dec, 4))}.json"
+
+
+def _remember_search(ra: float, dec: float, path: Path):
+    """Записати в індекс, яку точку неба містить файл кешу пошуку."""
+    with _SEARCH_LOCK:
+        try:
+            idx = json.loads(_SEARCH_INDEX.read_text()) if _SEARCH_INDEX.exists() else {}
+        except (OSError, ValueError):
+            idx = {}
+        idx[path.name] = [round(ra, 6), round(dec, 6)]
+        _atomic_write(_SEARCH_INDEX, json.dumps(idx).encode())
+
+
+def _sep_deg(ra1, dec1, ra2, dec2) -> float:
+    r1, d1, r2, d2 = map(math.radians, (ra1, dec1, ra2, dec2))
+    c = math.sin(d1) * math.sin(d2) + math.cos(d1) * math.cos(d2) * math.cos(r1 - r2)
+    return math.degrees(math.acos(max(-1.0, min(1.0, c))))
+
+
+_NEAR_MEMO: dict = {}
+
+
+def _nearby_search(ra: float, dec: float):
+    """Те саме, що _nearby_scan, з памʼяттю на 30 с (його викликає кожен PNG, поки свого списку немає)."""
+    key = (round(ra, 4), round(dec, 4))
+    hit = _NEAR_MEMO.get(key)
+    if hit and time.time() - hit[0] < 30 and (hit[1] is None or hit[1][0].exists()):
+        return hit[1]
+    res = _nearby_scan(ra, dec)
+    _NEAR_MEMO[key] = (time.time(), res)
+    return res
+
+
+def _nearby_scan(ra: float, dec: float):
+    """Збережений список кадрів для точки не далі NEARBY_DEG -> (path, ra, dec, sep_deg) або None.
+    Потрібно, коли IRSA лежить: напр. Barnard тепер шукаємо на 2026.0, а кеш є для J2000 (4.5′ поруч)."""
+    points = []
+    try:
+        points += list(json.loads(_SEARCH_INDEX.read_text()).values()) if _SEARCH_INDEX.exists() else []
+    except (OSError, ValueError):
+        pass
+    for t in KNOWN_TARGETS.values():                    # старі кеші без індексу: J2000 вбудованих об'єктів
+        points.append([t[0], t[1]])
+        points.append(list(_move_to_epoch(t[0], t[1], t[2], t[3], TARGET_EPOCH - 2000.0)))
+    rdir = CACHE / "resolve"
+    if rdir.exists():                                    # і все, що колись знаходив SIMBAD
+        for f in rdir.glob("*.json"):
+            try:
+                v = json.loads(f.read_text())               # [ra J2000, dec J2000, pmra, pmdec]
+                points.append(v[:2])
+                if len(v) >= 4 and v[2] is not None and v[3] is not None:
+                    points.append(list(_move_to_epoch(v[0], v[1], v[2], v[3], TARGET_EPOCH - 2000.0)))
+            except (OSError, ValueError, TypeError, KeyError):
+                pass
+    own, best = _search_path(ra, dec), None
+    for r, d in points:
+        try:
+            p = _search_path(float(r), float(d))
+        except (TypeError, ValueError):
+            continue
+        if p == own or not p.exists():
+            continue
+        sep = _sep_deg(ra, dec, float(r), float(d))
+        if sep <= NEARBY_DEG and (best is None or sep < best[3]):
+            best = (p, float(r), float(d), sep)
+    return best
+
+
+_NEARBY_USED: dict = {}                                    # файл точки -> звідки взяли список кадрів
+
+
+_SAID: dict = {}
+
+
+def _say_once(key, text, every=60.0):
+    """Не засмічувати консоль: те саме повідомлення не частіше разу на хвилину."""
+    now = time.time()
+    if now - _SAID.get(key, 0) >= every:
+        _SAID[key] = now
+        print(text)
+
+
+def _fallback(ra: float, dec: float, path: Path, why: str, quiet: bool = False):
+    """Список кадрів без IRSA: свій старий кеш, інакше кеш сусідньої точки. None — нічого немає.
+    quiet=True: внутрішній виклик, нічого не друкуємо (інакше кожен PNG писав би в консоль)."""
+    say = (lambda *a, **k: None) if quiet else _say_once
+    if path.exists():
+        say(("fb", path.name), f"IRSA search {why}; using cached frame list from "
+                  f"{time.strftime('%Y-%m-%d %H:%M', time.gmtime(path.stat().st_mtime))} UTC")
+        return json.loads(path.read_text())
+    near = _nearby_search(ra, dec)
+    if near:
+        p, r, d, sep = near
+        say(("fb", path.name), f"IRSA search {why}; using cached frame list of nearby point "
+                  f"{r:.4f} {d:+.4f} ({sep * 60:.1f}′ away)")
+        _NEARBY_USED[path.name] = {"ra": r, "dec": d, "sep_arcmin": round(sep * 60, 2),
+                                   "retrieved_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(p.stat().st_mtime))}
+        return json.loads(p.read_text())
+    return None
+
+
+def _spawn(fn, *args):
+    """Окремий потік на кожну спробу пошуку (пул потоків може вважати зайнятий потік вільним,
+    і нова спроба після зависання стала б у чергу за старою)."""
+    from concurrent.futures import Future
+    fut = Future()
+
+    def run():
+        if not fut.set_running_or_notify_cancel():
+            return
+        try:
+            fut.set_result(fn(*args))
+        except BaseException as exc:                              # noqa: BLE001
+            fut.set_exception(exc)
+    threading.Thread(target=run, daemon=True, name="irsa-search").start()
+    return fut
+
+
 def _irsa_search(ra: float, dec: float, path: Path) -> list[dict]:
     """Запит до IRSA TAP (з повторами) -> список кадрів; результат одразу пишеться в кеш."""
     from astroquery.ipac.irsa import Irsa
     adql = spherex_adql(ra, dec)
-    tbl = _retry(lambda: Irsa.query_tap(adql).to_table(), tries=4)
+    mode = {"async": False}
+
+    def ask():
+        # «502 Proxy Error» на /TAP/sync = проксі IRSA не дочекався довгого запиту. Для таких запитів
+        # IRSA має асинхронний TAP (/TAP/async): задача ставиться в чергу, ми опитуємо її до готовності.
+        if mode["async"]:
+            print(f"IRSA: asking via async TAP for {ra:.4f} {dec:+.4f}")
+            tap = getattr(Irsa, "tap", None)                     # pyvo TAPService IRSA
+            if tap is not None and hasattr(tap, "run_async"):
+                return tap.run_async(adql).to_table()
+            return Irsa.query_tap(adql, async_job=True).to_table()
+        try:
+            return Irsa.query_tap(adql).to_table()
+        except Exception as exc:                                  # noqa: BLE001
+            if _transient(exc):
+                mode["async"] = True                              # наступні спроби — асинхронно
+            raise
+    tbl = _retry(ask, tries=4)
     frames, seen = [], set()
     for row in tbl:
         uri = str(row["uri"]).strip()
@@ -227,42 +385,94 @@ def _irsa_search(ra: float, dec: float, path: Path) -> list[dict]:
             epoch += 1
         f["epoch"], prev = epoch, f["mjd"]
     _atomic_write(path, json.dumps(frames).encode())
+    _remember_search(ra, dec, path)
+    _NEARBY_USED.pop(path.name, None)
+    _SEARCH_FAILED.pop(path.name, None)
     return frames
 
 
-def search_frames(ra: float, dec: float, fresh: bool = False) -> list[dict]:
+def _start_search(ra: float, dec: float, path: Path):
+    """Запит до IRSA для точки: вже йде — повертаємо його; завис довше IRSA_RESTART_S — ще одна спроба."""
+    with _SEARCH_LOCK:
+        fut = _SEARCH_RUNNING.get(path.name)
+        hung = fut is not None and not fut.done() and time.time() - fut.started > IRSA_RESTART_S
+        if fut is None or fut.done() or hung:
+            if hung:                          # з'єднання з IRSA могло зависнути: пробуємо ще раз поруч зі старою спробою
+                print(f"IRSA search for {ra:.4f} {dec:+.4f} runs {time.time() - fut.started:.0f} s; starting a new attempt")
+            first = fut.first if hung else time.time()
+            fut = _spawn(_irsa_search, ra, dec, path)
+            fut.started, fut.first = time.time(), first
+            _SEARCH_RUNNING[path.name] = fut
+            fut.add_done_callback(lambda f, k=path.name: _SEARCH_RUNNING.pop(k, None) if _SEARCH_RUNNING.get(k) is f else None)
+            fut.add_done_callback(lambda f: _search_done(f, ra, dec, path))
+    return fut
+
+
+def _search_done(fut, ra, dec, path: Path):
+    """Невдача запамʼятовується навіть коли запит ішов у фоні (ніхто не чекав) — інакше кожен PNG
+    запускав би новий запит і ми безперервно смикали б IRSA."""
+    exc = fut.exception()
+    if exc is not None:
+        _SEARCH_FAILED[path.name] = time.time()
+        _say_once(("fail", path.name), f"IRSA search failed for {ra:.5f} {dec:+.5f}: "
+                                       f"{type(exc).__name__}: {str(exc)[:300]}")
+
+
+def _recently_failed(path: Path) -> bool:
+    failed = _SEARCH_FAILED.get(path.name)
+    return bool(failed and time.time() - failed < FAIL_PAUSE_S)
+
+
+def search_frames(ra: float, dec: float, fresh: bool = False, poll: bool = False) -> list[dict]:
     """Все кадры SPHEREx, покрывающие точку. Кэш на SEARCH_TTL_S.
     fresh=True — спитати IRSA зараз (не частіше разу на хвилину для точки).
-    IRSA іноді відповідає хвилинами: сторінка чекає не довше IRSA_WAIT_S, запит при цьому
-    не скасовується — доходить у фоні й кладе результат у кеш (наступний клік миттєвий)."""
-    path = CACHE / "search" / f"{_key(round(ra, 4), round(dec, 4))}.json"
+    poll=True (лише /api/search, тобто сайт): один HTTP-запит чекає не довше SEARCH_POLL_S і кидає
+    SearchPending — сайт одразу питає знову, а запит до IRSA (один на точку) тим часом іде у фоні.
+    Внутрішні виклики (кадри, Find, спектр, PNG) НІКОЛИ не чекають IRSA, якщо є збережений список
+    (свій старий або сусідньої точки): беруть його, а оновлення йде у фоні. Інакше Find/спектр
+    висіли б по хвилині на кожен виклик, коли IRSA відповідає 502."""
+    path = _search_path(ra, dec)
     age = time.time() - path.stat().st_mtime if path.exists() else None
     if age is not None and (age < 60 or (not fresh and age < SEARCH_TTL_S)):
         return json.loads(path.read_text())
 
-    with _SEARCH_LOCK:
-        fut = _SEARCH_RUNNING.get(path.name)
-        if fut is None or fut.done():
-            fut = _SEARCH_POOL.submit(_irsa_search, ra, dec, path)
-            _SEARCH_RUNNING[path.name] = fut
-            fut.add_done_callback(lambda f, k=path.name: _SEARCH_RUNNING.pop(k, None) if _SEARCH_RUNNING.get(k) is f else None)
+    if not poll and not fresh:
+        got = _fallback(ra, dec, path, "list is old or missing; refreshing in the background", quiet=True)
+        if got is not None:
+            if not _recently_failed(path):
+                _start_search(ra, dec, path)                     # оновлення у фоні, нікого не тримаємо
+            return got
+
+    if _recently_failed(path):                           # IRSA щойно впав: не мучимо його, одразу запасний
+        got = _fallback(ra, dec, path, "failed a moment ago")
+        if got is not None:
+            return got
+
+    fut = _start_search(ra, dec, path)
+    # Є збережений список (свій старий або сусідньої точки)? Не тримаємо людину: віддаємо його за кілька
+    # секунд, а свіжий запит до IRSA доходить у фоні й оновлює кеш (крім явної перевірки fresh=1).
+    saved = poll and not fresh and (path.exists() or _nearby_search(ra, dec) is not None)
     try:
-        return fut.result(timeout=IRSA_WAIT_S)
+        return fut.result(timeout=(SAVED_WAIT_S if saved else SEARCH_POLL_S) if poll else None)
     except Exception as exc:                                      # noqa: BLE001
         if not fut.done():                    # IRSA ще думає (у Python 3.11+ це той самий TimeoutError)
-            if path.exists():
-                return json.loads(path.read_text())      # старий список, поки IRSA думає
-            raise HTTPException(504, f"NASA's IRSA archive is answering very slowly right now (no reply in "
-                                     f"{IRSA_WAIT_S:.0f} s). The search keeps running in the background — "
-                                     "press Show the sky again in a minute and it should be instant.") from exc
-        if path.exists():                     # IRSA лежить, але цей пошук уже робили: беремо збережений список
-            print(f"IRSA search failed ({type(exc).__name__}); using cached frame list from "
-                  f"{time.strftime('%Y-%m-%d %H:%M', time.gmtime(path.stat().st_mtime))} UTC")
-            return json.loads(path.read_text())
+            elapsed = time.time() - getattr(fut, "first", time.time())
+            if saved:
+                got = _fallback(ra, dec, path, f"is slow ({elapsed:.0f} s), still running in the background")
+                if got is not None:
+                    return got
+            raise SearchPending(elapsed) from exc
+        _search_done(fut, ra, dec, path)
+        got = _fallback(ra, dec, path, f"failed ({type(exc).__name__})")
+        if got is not None:
+            return got
         code = next((c for c in ("502", "503", "504", "500", "429") if c in str(exc)), None)
+        if not _transient(exc):
+            raise HTTPException(502, f"The IRSA search failed: {type(exc).__name__}: {str(exc)[:200]}") from exc
         raise HTTPException(503, "NASA's IRSA archive is temporarily unavailable"
                                  f"{f' (HTTP {code} on their side)' if code else ''}; we retried 4 times. "
-                                 "Nothing is wrong with your search — try again in a minute.")
+                                 "Nothing is wrong with your search — try again in a minute. "
+                                 "Points searched before (e.g. after running warmup.py) keep working offline.")
 
 
 def _utc(mjd: float) -> str:
@@ -685,12 +895,17 @@ def resolve(name: str):
 def api_search(ra: float, dec: float, fresh: bool = False):
     """Список кадров и эпох (быстро, без скачивания картинок). fresh=1 — перевірити IRSA зараз."""
     _check(ra, dec)
-    frames = search_frames(ra, dec, fresh=True) if fresh else search_frames(ra, dec)
+    try:
+        frames = search_frames(ra, dec, fresh=True, poll=True) if fresh else search_frames(ra, dec, poll=True)
+    except SearchPending as p:                 # не помилка: сайт повторить цей самий запит
+        return {"ra": ra, "dec": dec, "pending": True, "elapsed_s": round(p.elapsed, 1)}
     info = search_cache_info(ra, dec)
-    path = CACHE / "search" / f"{_key(round(ra, 4), round(dec, 4))}.json"
-    stale = path.exists() and time.time() - path.stat().st_mtime >= SEARCH_TTL_S
+    path = _search_path(ra, dec)
+    near = None if path.exists() else _NEARBY_USED.get(path.name)
+    stale = (path.exists() and time.time() - path.stat().st_mtime >= SEARCH_TTL_S) or near is not None
     return {"ra": ra, "dec": dec, "n_frames": len(frames),
-            "stale": stale, "retrieved_utc": info["retrieved_utc"],
+            "stale": stale, "retrieved_utc": near["retrieved_utc"] if near else info["retrieved_utc"],
+            "nearby": near, "pending": False,
             "epochs": sorted({f["epoch"] for f in frames}),                  # внутрішнє, для сумісності
             "windows": observation_windows(frames),                           # для інтерфейсу: лише дати
             "frames": [{k: v for k, v in f.items() if k != "url"} for f in frames]}
@@ -1390,42 +1605,86 @@ def api_detect_map(ra: float, dec: float, fov: float = 0.1, a: int | None = None
     return _png_response(key, make)
 
 
+@lru_cache(maxsize=4096)
+def _lam_at(path_str: str, ra_r: float, dec_r: float) -> float:
+    """λ (мкм) у конкретній точці кадру: у SPHEREx λ змінюється вздовж детектора (LVF),
+    тож для точки збоку від центру вона трохи інша, ніж у мета-даних кадру."""
+    with fits.open(path_str) as hdul:
+        return _wavelength_um(hdul, SkyCoord(ra_r, dec_r, unit="deg"))
+
+
+def _aperture(img, x, y, r_px):
+    """Середнє в апертурі мінус медіана кільця фону (2r…3.5r). None — точка поза кадром / мало даних."""
+    ny, nx = img.shape
+    if not (np.isfinite(x) and np.isfinite(y) and 0 <= x < nx and 0 <= y < ny):
+        return None                                           # точка поза цим кадром
+    win = int(math.ceil(3.5 * r_px)) + 1
+    x0, y0 = int(round(x)), int(round(y))
+    ya, yb = max(0, y0 - win), min(ny, y0 + win + 1)          # вікно обрізаємо по краю кадру,
+    xa, xb = max(0, x0 - win), min(nx, x0 + win + 1)          # інакше сітка й виріз різного розміру
+    if ya >= yb or xa >= xb:
+        return None
+    cut = img[ya:yb, xa:xb]
+    yy, xx = np.mgrid[ya:yb, xa:xb]
+    rr = np.hypot(xx - x, yy - y)
+    ap, bg = cut[rr <= r_px], cut[(rr > 2 * r_px) & (rr <= 3.5 * r_px)]
+    ap, bg = ap[np.isfinite(ap)], bg[np.isfinite(bg)]
+    if ap.size < 3 or bg.size < 8:
+        return None
+    return float(ap.mean() - np.median(bg))
+
+
 @app.get("/api/spectrum")
 def api_spectrum(ra: float, dec: float, fov: float = 0.1,
-                 x_ra: float | None = None, x_dec: float | None = None, r_px: float = 2.0):
-    """Яркость точки (x_ra, x_dec; по умолчанию центр) во всех кадрах -> спектр."""
+                 x_ra: float | None = None, x_dec: float | None = None, r_px: float = 2.0,
+                 pmra: float | None = None, pmdec: float | None = None, pm_year: float | None = None):
+    """Яскравість точки (x_ra, x_dec; за замовчуванням центр) в усіх уже завантажених кадрах -> спектр
+    і крива блиску. Якщо задано власний рух (pmra, pmdec у мас/рік; x_ra/x_dec — положення на pm_year),
+    апертура йде за зіркою: Barnard зсувається на ~1.7 пікселя за рік."""
     _check(ra, dec, fov)
-    pt = SkyCoord(x_ra if x_ra is not None else ra, x_dec if x_dec is not None else dec,
-                  unit="deg")
-    out = []
-    win = int(math.ceil(3.5 * r_px)) + 1
+    x_ra = ra if x_ra is None else x_ra
+    x_dec = dec if x_dec is None else x_dec
+    if not (-90 <= x_dec <= 90):
+        raise HTTPException(400, "x_dec must be between -90 and 90")
+    r_px = max(1.0, min(float(r_px), 5.0))
+    moving = pmra is not None and pmdec is not None and pm_year is not None
+    out, skipped = [], {"not downloaded": 0, "outside frame": 0, "error": 0}
     for f in search_frames(ra, dec):
         path = _fits_path(f["url"], ra, dec, fov)
         meta_p = _npy_path(f["id"], ra, dec, fov).with_suffix(".json")
         if not path.exists() or not meta_p.exists():
-            continue                       # спектр строим по уже обработанным кадрам
-        try:
-            lam = json.loads(meta_p.read_text())["lam_um"]   # λ уже посчитана при обработке
-            img, wcs = _load_image(str(path))
-            x, y = (float(v) for v in wcs.world_to_pixel(pt))
-            x0, y0 = int(round(x)), int(round(y))
-            ys, xs = slice(max(0, y0 - win), y0 + win + 1), slice(max(0, x0 - win), x0 + win + 1)
-            cut = img[ys, xs]
-            if cut.size == 0:
-                continue                   # точка вне этого кадра
-            yy, xx = np.mgrid[ys, xs]
-            rr = np.hypot(xx - x, yy - y)
-            ap = cut[rr <= r_px]
-            bg = cut[(rr > 2 * r_px) & (rr <= 3.5 * r_px)]
-            if np.isfinite(ap).sum() and np.isfinite(bg).sum() and np.isfinite(lam):
-                out.append({"id": f["id"], "lam_um": lam,
-                            "flux": float(np.nanmean(ap) - np.nanmedian(bg)),
-                            "date": f["date"], "mjd": f["mjd"], "det": f["det"],
-                            "epoch": f["epoch"]})
-        except Exception:                                         # noqa: BLE001
+            skipped["not downloaded"] += 1         # спектр будуємо з уже оброблених кадрів
             continue
+        try:
+            pr, pd = x_ra, x_dec
+            if moving:                             # положення зірки на дату цього кадру
+                dt = 2000.0 + (f["mjd"] - 51544.5) / 365.25 - pm_year
+                pd = x_dec + pmdec * dt / 3.6e6
+                pr = (x_ra + pmra * dt / 3.6e6 / math.cos(math.radians(x_dec))) % 360
+            img, wcs = _load_image(str(path))
+            x, y = (float(v) for v in wcs.world_to_pixel(SkyCoord(pr, pd, unit="deg")))
+            flux = _aperture(img, x, y, r_px)
+            if flux is None:
+                skipped["outside frame"] += 1
+                continue
+            try:
+                lam = _lam_at(str(path), round(pr, 5), round(pd, 5))
+            except Exception:                                     # noqa: BLE001
+                lam = float("nan")
+            if not np.isfinite(lam):
+                lam = json.loads(meta_p.read_text()).get("lam_um")
+            if lam is None or not np.isfinite(lam):
+                skipped["error"] += 1
+                continue
+            out.append({"id": f["id"], "lam_um": float(lam), "flux": flux, "date": f["date"], "mjd": f["mjd"],
+                        "det": f["det"], "epoch": f["epoch"], "ra": round(pr, 6), "dec": round(pd, 6)})
+        except Exception as exc:                                  # noqa: BLE001
+            skipped["error"] += 1
+            _say_once(("spec", type(exc).__name__), f"spectrum: skipped a frame ({type(exc).__name__}: {str(exc)[:120]})")
     out.sort(key=lambda p: p["lam_um"])
-    return {"unit": "MJy/sr (средн. в апертуре минус фон)", "points": out}
+    return {"unit": "MJy/sr (mean in aperture minus background)", "aperture_px": r_px,
+            "tracking": {"pmra": pmra, "pmdec": pmdec, "year": pm_year} if moving else None,
+            "skipped": skipped, "points": out}
 
 
 def _ready_fits(ra, dec, fov, frame_id) -> Path:
@@ -1514,7 +1773,7 @@ def _gaia_from_esa(ra, dec, radius, gmax, pm_min, limit) -> dict:
             "pmdec": _as_float(t, "pmdec"), "g": _as_float(t, "g"), "plx": _as_float(t, "plx")}
 
 
-def _gaia_from_vizier(ra, dec, radius, gmax, pm_min, limit) -> dict:
+def _gaia_from_vizier(ra, dec, radius, gmax, pm_min, limit, server="vizier.cds.unistra.fr") -> dict:
     """Запасной путь: тот же Gaia DR3 (I/355/gaiadr3) с зеркала VizieR в CDS. Эпоха 2016.0."""
     from astroquery.vizier import Vizier
     cols = ["Source", "RA_ICRS", "DE_ICRS", "pmRA", "pmDE", "Gmag", "PM", "Plx"]
@@ -1523,7 +1782,7 @@ def _gaia_from_vizier(ra, dec, radius, gmax, pm_min, limit) -> dict:
     for filt in ({"Gmag": f"<{gmax}"}, {"PM": f">{pm_min}"}):     # яркие + все быстрые
         if gmax <= 0 and "Gmag" in filt:
             continue
-        v = Vizier(columns=cols, column_filters=filt, row_limit=limit)
+        v = Vizier(columns=cols, column_filters=filt, row_limit=limit, vizier_server=server)
         res = v.query_region(center, radius=radius * u.deg, catalog="I/355/gaiadr3")
         if not res:
             continue
@@ -1538,6 +1797,56 @@ def _gaia_from_vizier(ra, dec, radius, gmax, pm_min, limit) -> dict:
             for key, arr in zip(("ra", "dec", "pmra", "pmdec", "g", "plx"), vals):
                 out[key].append(arr[i])
     return {k: np.asarray(v, dtype=np.int64 if k == "sid" else float) for k, v in out.items()}
+
+
+GAIA_HEAD_S = float(os.environ.get("GAIA_HEAD_S", 6))     # фора ESA перед паралельним запитом до VizieR
+WISE_HEAD_S = float(os.environ.get("WISE_HEAD_S", 8))     # фора кожному джерелу AllWISE перед наступним
+VIZIER_MIRRORS = [("VizieR (CDS)", "vizier.cds.unistra.fr"),          # VizieR у Страсбурзі та його офіційне
+                  ("VizieR (CfA mirror)", "vizier.cfa.harvard.edu")]  # дзеркало в Гарварді: ті самі дані
+
+
+def _err_text(exc) -> str:
+    """Коротко: тип помилки + HTTP-код, якщо є (щоб у консолі було видно, чия це проблема)."""
+    code = getattr(getattr(exc, "response", None), "status_code", None) or getattr(exc, "code", None)
+    return f"{type(exc).__name__}{f' HTTP {code}' if code else ''}"
+
+
+def _cascade(sources, head_s, what):
+    """Джерела по черзі з форою head_s: перше стартує одразу; не відповіло за head_s або впало —
+    стартує наступне (попередні не зупиняються). Повертає (результат, назва) першого успішного."""
+    from concurrent.futures import FIRST_COMPLETED, wait
+    running, errors = {}, []
+    for name, fn in sources:
+        running[_spawn(fn)] = name
+        deadline = time.time() + head_s
+        while running and time.time() < deadline:
+            done, _ = wait(list(running), timeout=max(0.0, deadline - time.time()), return_when=FIRST_COMPLETED)
+            for f in done:
+                n = running.pop(f)
+                if f.exception() is None:
+                    return f.result(), n
+                errors.append(f"{n}: {_err_text(f.exception())}")
+                print(f"{what}: {n} failed ({_err_text(f.exception())}); trying the next source")
+    if running:
+        return _first_ok(list(running.items()), what, errors)
+    raise HTTPException(502, f"{what} is not responding right now ({'; '.join(errors)}). "
+                             "The rest of the site works; try again in a minute.")
+
+
+def _first_ok(pairs, what, errors=None):
+    """Перший успішний результат з кількох паралельних запитів -> (результат, назва джерела)."""
+    from concurrent.futures import FIRST_COMPLETED, wait
+    pending = {f: name for f, name in pairs}
+    errors = list(errors or [])
+    while pending:
+        done, _ = wait(list(pending), return_when=FIRST_COMPLETED)
+        for f in done:
+            name = pending.pop(f)
+            if f.exception() is None:
+                return f.result(), name
+            errors.append(f"{name}: {_err_text(f.exception())}")
+    raise HTTPException(502, f"{what} is not responding right now ({'; '.join(errors)}). "
+                             "The rest of the site works; try again in a minute.")
 
 
 @app.get("/api/gaia")
@@ -1565,16 +1874,11 @@ def api_gaia(ra: float, dec: float, fov: float = 0.1, date: str | None = None,
     if cache_p.exists() and time.time() - cache_p.stat().st_mtime < GAIA_TTL_S:
         return json.loads(cache_p.read_text())
     radius = fov / 2 * math.sqrt(2)
-    try:
-        cols, source = _gaia_from_esa(ra, dec, radius, gmax, pm_min, limit), "ESA Gaia Archive"
-    except Exception as esa_exc:                                  # noqa: BLE001
-        print(f"Gaia Archive failed ({type(esa_exc).__name__}: {esa_exc}); trying VizieR mirror")
-        try:
-            cols, source = _gaia_from_vizier(ra, dec, radius, gmax, pm_min, limit), "VizieR (CDS)"
-        except Exception as viz_exc:                              # noqa: BLE001
-            raise HTTPException(502, f"Gaia is not responding right now (ESA: {type(esa_exc).__name__}; "
-                                     f"VizieR: {type(viz_exc).__name__}). The rest of the site works; "
-                                     "try the overlay again in a minute.")
+    args = (ra, dec, radius, gmax, pm_min, limit)
+    # ESA Gaia Archive -> VizieR CDS -> дзеркало VizieR у CfA (той самий Gaia DR3, I/355/gaiadr3).
+    srcs = [("ESA Gaia Archive", lambda: _gaia_from_esa(*args))]
+    srcs += [(n, (lambda sv=sv: _gaia_from_vizier(*args, server=sv))) for n, sv in VIZIER_MIRRORS]
+    cols, source = _cascade(srcs, GAIA_HEAD_S, "Gaia")
 
     dt_yr = (when - Time(2016.0, format="jyear")).to_value(u.yr)
     ra0, dec0, pmra, pmdec, g, sids = (cols[k] for k in ("ra", "dec", "pmra", "pmdec", "g", "sid"))
@@ -1589,7 +1893,7 @@ def api_gaia(ra: float, dec: float, fov: float = 0.1, date: str | None = None,
              if np.isfinite(a) and np.isfinite(d) and np.isfinite(pa) and np.isfinite(pd)]
     query = ({"service": "ESA Gaia Archive TAP", "endpoint": GAIA_TAP,
               "adql": gaia_adql(ra, dec, radius, gmax, pm_min, limit)} if source.startswith("ESA") else
-             {"service": "CDS VizieR (astroquery.vizier)", "endpoint": "VizieR I/355/gaiadr3",
+             {"service": "CDS VizieR (astroquery.vizier)", "endpoint": f"{dict(VIZIER_MIRRORS).get(source, 'VizieR')} I/355/gaiadr3",
               "cone": {"ra_deg": ra, "dec_deg": dec, "radius_deg": radius}, "filters": {"Gmag_lt": gmax, "PM_gt": pm_min},
               "row_limit": limit})
     res = {"catalog": GAIA_TABLE, "source": source, "epoch": when.iso[:10],
@@ -1603,10 +1907,10 @@ def api_gaia(ra: float, dec: float, fov: float = 0.1, date: str | None = None,
 WISE_EPOCH = 2010.5              # средняя эпоха позиций AllWISE
 
 
-def _wise_from_vizier(ra, dec, radius, wmax, limit) -> list:
+def _wise_from_vizier(ra, dec, radius, wmax, limit, server="vizier.cds.unistra.fr") -> list:
     from astroquery.vizier import Vizier
     v = Vizier(columns=["AllWISE", "RAJ2000", "DEJ2000", "+W1mag", "W2mag", "pmRA", "pmDE"],
-               column_filters={"W1mag": f"<{wmax}"}, row_limit=limit)    # "+" = ярким первыми
+               column_filters={"W1mag": f"<{wmax}"}, row_limit=limit, vizier_server=server)  # "+" = ярким першими
     res = v.query_region(SkyCoord(ra, dec, unit="deg"), radius=radius * u.deg,
                          catalog="II/328/allwise")
     if not res:
@@ -1629,6 +1933,34 @@ def _wise_from_irsa(ra, dec, radius, wmax, limit) -> list:
     return sorted(rows, key=lambda r_: r_[3])[:limit]
 
 
+DATALAB_TAP = "https://datalab.noirlab.edu/tap"
+
+
+def _wise_name(ra, dec) -> str:
+    """Позначення AllWISE з координат: AllWISE JHHMMSS.SS+DDMMSS.S (без «60.00 с» при округленні)."""
+    t = int(round((ra % 360) / 15.0 * 3600 * 100)) % (24 * 3600 * 100)        # соті частки секунди часу
+    hh, rem = divmod(t, 3600 * 100)
+    mm, cs = divmod(rem, 60 * 100)
+    sign = "+" if dec >= 0 else "-"
+    a = int(round(abs(dec) * 3600 * 10))                                       # десяті частки кутової секунди
+    dd, rem = divmod(a, 3600 * 10)
+    dm, ds = divmod(rem, 60 * 10)
+    return f"AllWISE J{hh:02d}{mm:02d}{cs // 100:02d}.{cs % 100:02d}{sign}{dd:02d}{dm:02d}{ds // 10:02d}.{ds % 10}"
+
+
+def _wise_from_datalab(ra, dec, radius, wmax, limit) -> list:
+    """Запасне джерело: та сама таблиця AllWISE у NOIRLab Astro Data Lab (TAP, allwise.source)."""
+    import pyvo
+    adql = (f"SELECT TOP {int(limit)} ra, dec, w1mpro, w2mpro, pmra, pmdec FROM allwise.source "
+            f"WHERE 1 = CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', {ra}, {dec}, {radius})) "
+            f"AND w1mpro < {wmax} ORDER BY w1mpro")
+    t = pyvo.dal.TAPService(DATALAB_TAP).run_sync(adql).to_table()
+    t.rename_columns(t.colnames, [c.lower() for c in t.colnames])
+    cols = [_as_float(t, c) for c in ("ra", "dec", "w1mpro", "w2mpro", "pmra", "pmdec")]
+    return [(_wise_name(a, d), a, d, w1, w2, pa, pd) for a, d, w1, w2, pa, pd in zip(*cols)
+            if np.isfinite(a) and np.isfinite(d)]
+
+
 @app.get("/api/wise")
 def route_wise(ra: float, dec: float, fov: float = 0.1, wmax: float = 15.0, limit: int = 400):
     """Оверлей AllWISE для сайту: чекаємо не довше CAT_WAIT_S, далі запит іде у фоні й кешується."""
@@ -1649,15 +1981,12 @@ def api_wise(ra: float, dec: float, fov: float = 0.1, wmax: float = 15.0, limit:
     if cache_p.exists() and time.time() - cache_p.stat().st_mtime < GAIA_TTL_S:
         return json.loads(cache_p.read_text())
     radius = fov / 2 * math.sqrt(2)
-    try:
-        rows, source = _wise_from_vizier(ra, dec, radius, wmax, limit), "VizieR (CDS)"
-    except Exception as viz_exc:                                  # noqa: BLE001
-        print(f"VizieR AllWISE failed ({type(viz_exc).__name__}); trying IRSA")
-        try:
-            rows, source = _wise_from_irsa(ra, dec, radius, wmax, limit), "IRSA"
-        except Exception as irsa_exc:                             # noqa: BLE001
-            raise HTTPException(502, f"AllWISE is not responding right now (VizieR: "
-                                     f"{type(viz_exc).__name__}; IRSA: {type(irsa_exc).__name__}).")
+    args = (ra, dec, radius, wmax, limit)
+    # Чотири офіційні копії AllWISE: VizieR CDS -> дзеркало VizieR у CfA -> NOIRLab Data Lab -> IRSA.
+    # Наступне джерело стартує, якщо попереднє впало або мовчить WISE_HEAD_S; береться перша відповідь.
+    srcs = [(n, (lambda sv=sv: _wise_from_vizier(*args, server=sv))) for n, sv in VIZIER_MIRRORS]
+    srcs += [("NOIRLab Data Lab", lambda: _wise_from_datalab(*args)), ("IRSA", lambda: _wise_from_irsa(*args))]
+    rows, source = _cascade(srcs, WISE_HEAD_S, "AllWISE")
     clean = lambda v: float(v) if np.isfinite(v) else None       # noqa: E731
     stars = []
     for name, a, d, w1, w2, pa, pd in rows:
@@ -1667,8 +1996,12 @@ def api_wise(ra: float, dec: float, fov: float = 0.1, wmax: float = 15.0, limit:
         stars.append({"name": name if name.startswith("AllWISE") else f"AllWISE {name}",
                       "ra": float(a), "dec": float(d), "w1": clean(w1), "w2": clean(w2),
                       "pmra": clean(pa) or 0.0, "pmdec": clean(pd) or 0.0})
-    query = ({"service": "CDS VizieR (astroquery.vizier)", "endpoint": "VizieR II/328/allwise"} if source.startswith("VizieR")
-             else {"service": "IRSA Gator (astroquery.ipac.irsa)", "endpoint": "allwise_p3as_psd"})
+    servers = dict(VIZIER_MIRRORS)
+    query = ({"service": "CDS VizieR (astroquery.vizier)", "endpoint": f"{servers[source]} II/328/allwise"}
+             if source in servers else
+             {"service": "NOIRLab Astro Data Lab TAP", "endpoint": f"{DATALAB_TAP} allwise.source"}
+             if source.startswith("NOIRLab") else
+             {"service": "IRSA Gator (astroquery.ipac.irsa)", "endpoint": "allwise_p3as_psd"})
     query.update({"cone": {"ra_deg": ra, "dec_deg": dec, "radius_deg": radius}, "filters": {"W1mag_lt": wmax},
                   "row_limit": limit})
     res = {"catalog": "AllWISE", "source": source, "epoch_jyear": WISE_EPOCH,
@@ -1739,4 +2072,8 @@ if __name__ == "__main__":
     ap.add_argument("--reload", action="store_true", help="restart automatically when files change")
     a = ap.parse_args()
     print(f"Open http://{'127.0.0.1' if a.host == '0.0.0.0' else a.host}:{a.port}/ in the browser (Ctrl+C to stop)")
-    uvicorn.run("api:app", host=a.host, port=a.port, reload=a.reload)
+    try:   # lifespan off: подій старту/зупинки немає, і Ctrl+C не друкує довгий traceback (Python 3.14)
+        uvicorn.run("api:app", host=a.host, port=a.port, reload=a.reload, lifespan="off")
+    except KeyboardInterrupt:
+        pass
+    print("Server stopped.")
