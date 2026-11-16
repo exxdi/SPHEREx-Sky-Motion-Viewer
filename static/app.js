@@ -91,12 +91,12 @@ async function getJSON(path, chan = "search") {
     r = await fetch(API + path, signal ? { signal } : undefined);
   } catch (err) {
     if (err && err.name === "AbortError") { const e = new Error("cancelled by a newer request"); e.aborted = true; throw e; }
-    throw new Error("cannot reach the server. Is uvicorn running? Open the site via " +
+    throw new Error("cannot reach the server. Is it running (python api.py or python flask_app.py)? Open the site via " +
       "http://127.0.0.1:5050/ (not by double-clicking index.html).");
   }
   let body = null;
   try { body = await r.json(); } catch (_) { /* not JSON */ }
-  if (!r.ok) throw new Error((body && body.detail) || `HTTP ${r.status}`);
+  if (!r.ok) { const e = new Error((body && body.detail) || `HTTP ${r.status}`); e.status = r.status; throw e; }
   return body;
 }
 
@@ -196,6 +196,17 @@ async function resolveTarget(text) {
   return getJSON(`/api/resolve?${qs({ name: text })}`);   // names and 08h55m.. formats
 }
 
+// /api/search answers in ≤ 20 s: either the frame list or {pending:true} while IRSA is still working.
+// We simply ask again — the server keeps ONE query to IRSA running, so there is no time limit and no error.
+async function searchUntilDone(params, token, chan = "search") {
+  for (;;) {
+    const found = await getJSON(`/api/search?${qs(params)}`, chan === "search" ? undefined : channel(chan));
+    if (!found || !found.pending) return found;
+    if (token !== undefined && token !== state.token) return null;   // a newer search took over
+    await sleep(300);
+  }
+}
+
 async function load() {
   stop();
   abortAll();                             // drop every request of the previous search (search, frames, Gaia, …)
@@ -221,6 +232,8 @@ async function load() {
     const pos = await resolveTarget(text);
     if (token !== state.token) return;
     state.ra = pos.ra; state.dec = pos.dec;
+    state.targetPm = pos.pm_mas_yr && pos.pm_mas_yr.every(Number.isFinite)
+      ? { pmra: pos.pm_mas_yr[0], pmdec: pos.pm_mas_yr[1], year: pos.epoch || 2026.0, name: state.name || text } : null;
     $("target-title").textContent = state.name || text;
     writeURL();
 
@@ -232,24 +245,33 @@ async function load() {
       const sec = Math.round((Date.now() - started) / 1000);
       if (sec >= 4) {
         setStatus(`Searching the SPHEREx archive (IRSA)… ${sec} s` +
-          (sec >= 12 ? " — IRSA is slow right now; the first search of a place can take up to a minute, then it is cached." : "") + moved);
+          (sec >= 12 ? " — IRSA is slow right now. We keep waiting for its answer (no time limit); " +
+            "the result is saved, so next time this place opens instantly." : "") + moved);
       }
     }, 1000);
     let found;
     try {
-      found = await getJSON(`/api/search?${qs({ ra: state.ra, dec: state.dec })}`);
+      found = await searchUntilDone({ ra: state.ra, dec: state.dec }, token);
     } finally {
       clearInterval(tick);
     }
-    if (token !== state.token) return;
+    if (!found || token !== state.token) return;
     if (!found.n_frames) {
-      setStatus("SPHEREx has no images of this point yet. New data arrives every week.", true);
+      const d = found.irsa;
+      setStatus(d && d.irsa_rows
+        ? `IRSA answered with ${d.irsa_rows} rows, but none could be read as SPHEREx frames ` +
+          `(bands: ${(d.bands_seen || []).join(", ") || "—"}). Please report this.`
+        : "SPHEREx has no images of this point yet. New data arrives every week.", true);
       return;
     }
     state.searchFrames = Array.isArray(found.frames) ? found.frames : [];
-    state.staleNote = found.stale ? ` IRSA is not answering right now, so the frame list saved on ` +
-      `${(found.retrieved_utc || "").slice(0, 16).replace("T", " ")} UTC is used.` : "";
+    const saved = (found.retrieved_utc || "").slice(0, 16).replace("T", " ");
+    state.staleNote = found.nearby
+      ? ` IRSA is slow or down right now, so the frame list saved on ${saved} UTC for a point ` +
+        `${found.nearby.sep_arcmin.toFixed(1)}′ away is used (same SPHEREx frames).`
+      : found.stale ? ` IRSA is slow or down right now, so the frame list saved on ${saved} UTC is used (a fresh one loads in the background).` : "";
     renderEpochChips();
+    loadOverlays();                               // catalogs need only the position: ask in parallel with frames
     const want = state.searchFrames.filter((f) => (state.det === "all" || f.det === state.det) && inRange(f));
     if (state.searchFrames.length && !want.length) {
       setStatus(`SPHEREx has no ${state.det === "all" ? "" : state.det + " "}images of this point between ` +
@@ -294,6 +316,7 @@ async function load() {
       await sleep(POLL_MS);
     }
     state.job = null;
+    if (state.click) loadSpectrum(state.click);           // measured while loading -> now with every frame
     const requested = res.total, lowCov = res.n_low_coverage || 0;
     const lastErr = res.errors && res.errors.length ? res.errors[0] : "";
 
@@ -314,8 +337,7 @@ async function load() {
     setStatus(`${allMjd.length} frames ready, observed ${fmtSpan(Math.min(...allMjd), Math.max(...allMjd))}` +
       `${showEpochs() ? ` in ${activeEpochs().length || state.epochs.length} epoch(s)` : ""}. Press Play.` +
       (lowCov ? ` (${lowCov} frame(s) taken at the detector edge, not covering the target, are hidden.)` : ""));
-    if ($("gaia-toggle").checked) await loadGaia();
-    if ($("wise-toggle").checked) await loadWise();
+    loadOverlays();                               // no-op if they already arrived during loading
   } catch (err) {
     if (isAbort(err) || token !== state.token) return;           // a newer search took over
     state.loading = false;
@@ -560,23 +582,52 @@ function stop() {
 }
 
 // -------------------------------------------------------------------- Gaia --
-async function loadGaia() {
+// Catalog overlays. The server waits ~25 s for a catalog, then answers 504 while the query keeps
+// running in the background and fills its cache — so on 504 we simply ask again (up to ~3 min).
+async function fetchCatalog(path, chan, statusEl, label, token, stillWanted) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await getJSON(path, channel(chan));
+    } catch (err) {
+      if (isAbort(err) || token !== state.token || !stillWanted()) return null;
+      if (err.status === 504 && attempt < 8) {
+        $(statusEl).textContent = `${label} is answering slowly — still loading in the background, retrying…`;
+        await sleep(20000);
+        if (token !== state.token || !stillWanted()) return null;
+        continue;
+      }
+      $(statusEl).textContent = `${label} unavailable: ${err.message}`;
+      return null;
+    }
+  }
+}
+
+const inflight = {};          // one request per catalog at a time (a second call joins the first)
+function once(key, fn) {
+  if (!inflight[key]) inflight[key] = fn().finally(() => { delete inflight[key]; });
+  return inflight[key];
+}
+
+function loadGaia() {
+  return once(`gaia:${state.token}:${$("gaia-depth").value}`, loadGaiaNow);
+}
+
+function loadWise() {
+  return once(`wise:${state.token}`, loadWiseNow);
+}
+
+async function loadGaiaNow() {
   if (state.ra === null) return;
   if (!state.gaiaBase) {
     const token = state.token, depth = $("gaia-depth").value;
-    $("gaia-status").textContent = "Loading stars from the Gaia Archive (10–30 s the first time)…";
-    try {   // one request: positions at 2016.0 + proper motions; moved to each frame date here
-      const res = await getJSON(`/api/gaia?${qs({
-        ra: state.ra, dec: state.dec, fov: state.fov, gmax: depth,
-      })}`, channel("gaia"));
-      if (token !== state.token || depth !== $("gaia-depth").value) return;  // target changed meanwhile
-      if (!Number.isFinite(res.epoch_jyear)) res.epoch_jyear = 2016.0;
-      state.gaiaBase = res;
-    } catch (err) {
-      if (!isAbort(err) && token === state.token) $("gaia-status").textContent = `Gaia unavailable: ${err.message}`;
-      return;
-    }
+    $("gaia-status").textContent = "Loading stars from Gaia DR3 (ESA archive or the VizieR mirror)…";
+    const res = await fetchCatalog(`/api/gaia?${qs({ ra: state.ra, dec: state.dec, fov: state.fov, gmax: depth })}`,
+      "gaia", "gaia-status", "Gaia", token, () => $("gaia-toggle").checked && depth === $("gaia-depth").value);
+    if (!res || token !== state.token || depth !== $("gaia-depth").value) return;  // target / depth changed meanwhile
+    if (!Number.isFinite(res.epoch_jyear)) res.epoch_jyear = 2016.0;
+    state.gaiaBase = res;
   }
+  if (!$("gaia-toggle").checked) return;
   const fast = state.gaiaBase.stars.filter((x) => Math.hypot(x.pmra, x.pmdec) > 500).length;
   $("gaia-status").textContent = `${state.gaiaBase.n} Gaia stars in the field` +
     (fast ? ` · ${fast} fast mover(s) (> 0.5″/yr)` : "") +
@@ -584,22 +635,26 @@ async function loadGaia() {
   drawOverlay();
 }
 
-async function loadWise() {
+async function loadWiseNow() {
   if (state.ra === null) return;
   if (!state.wiseBase) {
     const token = state.token;
     $("wise-status").textContent = "Loading AllWISE sources…";
-    try {
-      const res = await getJSON(`/api/wise?${qs({ ra: state.ra, dec: state.dec, fov: state.fov })}`, channel("wise"));
-      if (token !== state.token) return;
-      state.wiseBase = res;
-    } catch (err) {
-      if (!isAbort(err) && token === state.token) $("wise-status").textContent = `AllWISE unavailable: ${err.message}`;
-      return;
-    }
+    const res = await fetchCatalog(`/api/wise?${qs({ ra: state.ra, dec: state.dec, fov: state.fov })}`,
+      "wise", "wise-status", "AllWISE", token, () => $("wise-toggle").checked);
+    if (!res || token !== state.token) return;
+    if (!Number.isFinite(res.epoch_jyear)) res.epoch_jyear = 2010.5;
+    state.wiseBase = res;
   }
+  if (!$("wise-toggle").checked) return;
   $("wise-status").textContent = `${state.wiseBase.n} AllWISE sources (W1 < 15) · via ${state.wiseBase.source}`;
   drawOverlay();
+}
+
+// Both overlays at once, without holding anything else up.
+function loadOverlays() {
+  if ($("gaia-toggle").checked) loadGaia();
+  if ($("wise-toggle").checked) loadWise();
 }
 
 // Catalog positions -> position on the date of the frame (linear proper motion).
@@ -613,16 +668,7 @@ function catAt(base, year) {
   }));
 }
 
-function gaiaAt(year) {
-  const base = state.gaiaBase;
-  if (!base || year === null || year === undefined) return [];
-  const dt = year - base.epoch_jyear;
-  return base.stars.map((s) => ({
-    ...s,
-    ra: s.ra + (s.pmra * dt / 3.6e6) / Math.cos(s.dec * Math.PI / 180),
-    dec: s.dec + s.pmdec * dt / 3.6e6,
-  }));
-}
+const gaiaAt = (year) => catAt(state.gaiaBase, year);
 
 function drawOverlay() {
   const svg = $("overlay");
@@ -673,7 +719,8 @@ function drawOverlay() {
     if (h) html += `<circle cx="${h.x}" cy="${h.y}" r="26" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="6 5"/>`;
   }
   if (state.click) {
-    const p = skyToFrac(state.click.ra, state.click.dec);
+    const c = clickAt(state.click, it.t);
+    const p = skyToFrac(c.ra, c.dec);
     const x = p.x * 1000, y = p.y * 1000;
     html += `<circle cx="${x}" cy="${y}" r="18" fill="none" stroke="#F5B342" stroke-width="3"/>` +
       `<line x1="${x - 30}" y1="${y}" x2="${x - 20}" y2="${y}" stroke="#F5B342" stroke-width="3"/>` +
@@ -803,10 +850,19 @@ function selectDet(d) {
     const i = state.items.findIndex((it) => it.epoch === d.epoch);
     if (i >= 0) { stop(); show(i); }
   }
-  const p = detPosAt(d, state.items[state.idx]) || d.points[d.points.length - 1];
-  state.click = { ra: p.ra, dec: p.dec };
+  const it = state.items[state.idx];
+  const at = detPosAt(d, it), p = at || d.points[d.points.length - 1];
+  const year = at && Number.isFinite(it.t) ? it.t : jyear(p.mjd);     // the date p belongs to
+  let pm = null;                       // a slow mover: follow its measured motion (or Gaia's, if matched)
+  const g = d.matches && d.matches.gaia;
+  if (g && Number.isFinite(g.pmra) && Number.isFinite(g.pmdec)) pm = { pmra: g.pmra, pmdec: g.pmdec, year };
+  else if (d.kind === "moving" && d.points.length > 1) {
+    const a = d.points[0], b = d.points[d.points.length - 1], dy = (b.mjd - a.mjd) / 365.25;
+    if (dy > 0) pm = { pmra: (b.ra - a.ra) * Math.cos(a.dec * Math.PI / 180) * 3.6e6 / dy, pmdec: (b.dec - a.dec) * 3.6e6 / dy, year };
+  }
+  state.click = { ra: p.ra, dec: p.dec, label: `#${d.id} ${detTitle(d).toLowerCase()}`, pm };
   drawOverlay();
-  loadSpectrum(p.ra, p.dec);
+  loadSpectrum(state.click);
 }
 
 // ------------------------------------------------------------- export report --
@@ -893,7 +949,8 @@ async function runDetect() {
     if (token !== state.token) { clearInterval(tick); return; }
     const sec = Math.round((Date.now() - started) / 1000);
     $("det-status").textContent = `${base} ${sec} s` +
-      (sec >= 15 ? " — the catalog services are slow; the search gives up waiting for them after ~30 s." : "");
+      (sec >= 15 ? " — still working. Catalogs that do not answer within ~25 s are skipped " +
+        "(the result then says so); the frame comparison itself always finishes." : "");
   }, 1000);
   try {
     const res = await getJSON(`/api/detect?${qs({
@@ -987,19 +1044,63 @@ $("stage").addEventListener("mousemove", (e) => {
 $("stage").addEventListener("mouseleave", () => { if (state.hover) { hideTip(); drawOverlay(); } });
 
 // ----------------------------------------------------------------- spectrum --
-async function loadSpectrum(ra, dec) {
-  $("spec-note").textContent = "Measuring this point in every frame…";
+// Where a clicked point is on a given date: fixed sky point, or a star that moves (proper motion).
+function clickAt(c, year) {
+  if (!c || !c.pm || !Number.isFinite(year)) return c;
+  const dt = year - c.pm.year;
+  return {
+    ...c,
+    ra: c.ra + (c.pm.pmra * dt / 3.6e6) / Math.cos(c.dec * Math.PI / 180),
+    dec: c.dec + c.pm.pmdec * dt / 3.6e6,
+  };
+}
+
+// A click near a Gaia star (or the target itself, if it moves) measures THAT star in every frame,
+// following its motion — otherwise a fast star like Barnard's walks out of the aperture over a year.
+function pickPoint(sky, it) {
+  const year = it && Number.isFinite(it.t) ? it.t : null;
+  const near = 2.5 * PIX_DEG;                                   // within 2.5 SPHEREx pixels
+  const dist = (a) => Math.hypot((a.ra - sky.ra) * Math.cos(sky.dec * Math.PI / 180), a.dec - sky.dec);
+  if (year !== null && state.gaiaBase) {
+    let best = null, bd = near;
+    for (const s of catAt(state.gaiaBase, year)) { const d = dist(s); if (d < bd) { bd = d; best = s; } }
+    if (best) {
+      const pm = Math.hypot(best.pmra, best.pmdec);
+      return { ra: best.ra, dec: best.dec, label: `Gaia DR3 ${best.source_id}`,
+        pm: pm > 20 ? { pmra: best.pmra, pmdec: best.pmdec, year } : null };
+    }
+  }
+  if (year !== null && state.targetPm && Math.hypot(state.targetPm.pmra, state.targetPm.pmdec) > 20) {
+    const t = clickAt({ ra: state.ra, dec: state.dec, pm: state.targetPm }, year);
+    if (dist(t) < near) return { ra: t.ra, dec: t.dec, label: state.targetPm.name, pm: { ...state.targetPm, year } };
+  }
+  return { ra: sky.ra, dec: sky.dec, label: null, pm: null };
+}
+
+async function loadSpectrum(c) {
+  if (!c) return;
+  const token = state.token;
+  $("spec-note").textContent = c.label ? `Measuring ${c.label} in every frame…` : "Measuring this point in every frame…";
   try {
     const res = await getJSON(`/api/spectrum?${qs({
-      ra: state.ra, dec: state.dec, fov: state.fov, x_ra: ra.toFixed(6), x_dec: dec.toFixed(6),
+      ra: state.ra, dec: state.dec, fov: state.fov, x_ra: c.ra.toFixed(6), x_dec: c.dec.toFixed(6),
+      ...(c.pm ? { pmra: c.pm.pmra.toFixed(2), pmdec: c.pm.pmdec.toFixed(2), pm_year: c.pm.year.toFixed(4) } : {}),
     })}`, channel("spectrum"));
+    if (token !== state.token || state.click !== c) return;      // another click / target meanwhile
     state.specPoints = res.points;
     drawChart();
+    const sk = res.skipped || {};
+    const pm = c.pm ? Math.hypot(c.pm.pmra, c.pm.pmdec) / 1000 : 0;
+    const why = res.points.length ? "" :
+      (sk["not downloaded"] && !sk["outside frame"] ? " No frames are downloaded yet — wait until they load." :
+        " This point is not covered by the downloaded frames.");
     $("spec-note").textContent =
-      `RA ${ra.toFixed(4)}°, Dec ${dec.toFixed(4)}° · ${res.points.length} measurements. ` +
-      "Click a dot to jump to that frame. Tip: detector All (D1–D6) gives the full 0.75–5 µm range.";
+      `${c.label ? `${c.label} · ` : ""}RA ${c.ra.toFixed(4)}°, Dec ${c.dec.toFixed(4)}° · ${res.points.length} measurements` +
+      (c.pm ? ` · the aperture follows its motion (${pm.toFixed(pm < 1 ? 2 : 1)}″/yr)` : "") + "." + why +
+      (res.points.length ? " Click a dot to jump to that frame. Tip: detector All (D1–D6) gives the full 0.75–5 µm range." : "") +
+      (state.loading && res.points.length ? " More frames are loading — the chart updates when they are done." : "");
   } catch (err) {
-    if (!isAbort(err)) $("spec-note").textContent = `Spectrum unavailable: ${err.message}`;
+    if (!isAbort(err) && token === state.token) $("spec-note").textContent = `Spectrum unavailable: ${err.message}`;
   }
 }
 
@@ -1265,7 +1366,7 @@ $("set-fresh").addEventListener("click", async () => {
   $("set-fresh-note").textContent = "Asking IRSA for the latest frame list…";
   try {
     const before = state.searchFrames.length;
-    const found = await getJSON(`/api/search?${qs({ ra: state.ra, dec: state.dec, fresh: 1 })}`, channel("fresh"));
+    const found = await searchUntilDone({ ra: state.ra, dec: state.dec, fresh: 1 }, undefined, "fresh");
     const added = found.n_frames - before;
     $("set-fresh-note").textContent = added > 0 ? `${added} new frame(s) found — loading them.` : "No new frames since the last check.";
     if (added > 0) load();
@@ -1310,9 +1411,9 @@ $("stage").addEventListener("click", (e) => {
   if (state.ra === null || !state.items.length) return;
   const r = e.currentTarget.getBoundingClientRect();
   const sky = fracToSky((e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
-  state.click = sky;
+  state.click = pickPoint(sky, state.items[state.idx]);
   drawOverlay();
-  loadSpectrum(sky.ra, sky.dec);
+  loadSpectrum(state.click);
 });
 
 $("spectrum").addEventListener("click", (e) => {
