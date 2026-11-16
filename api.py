@@ -21,6 +21,7 @@ import json
 import math
 import os
 import random
+import re
 import shutil
 import threading
 import time
@@ -62,6 +63,7 @@ data_conf.remote_timeout = 120
 CACHE = Path(os.environ.get("CACHE_DIR", Path(__file__).parent / "cache"))   # рядом с api.py
 GAIA_TABLE = os.environ.get("GAIA_TABLE", "gaiadr3.gaia_source")   # после 2.12.2026 -> DR4
 SEARCH_TTL_S = int(os.environ.get("SEARCH_TTL_S", 12 * 3600))      # релизы IRSA еженедельные
+EMPTY_TTL_S = int(os.environ.get("EMPTY_TTL_S", 600))              # порожню відповідь перепитуємо через 10 хв
 IRSA_BASE = "https://irsa.ipac.caltech.edu/"
 IRSA_TAP = "https://irsa.ipac.caltech.edu/TAP"
 GAIA_TAP = "https://gea.esac.esa.int/tap-server/tap"
@@ -286,7 +288,7 @@ def _nearby_scan(ra: float, dec: float):
             p = _search_path(float(r), float(d))
         except (TypeError, ValueError):
             continue
-        if p == own or not p.exists():
+        if p == own or not p.exists() or p.stat().st_size <= 2:      # порожній список нам не допоможе
             continue
         sep = _sep_deg(ra, dec, float(r), float(d))
         if sep <= NEARBY_DEG and (best is None or sep < best[3]):
@@ -344,40 +346,98 @@ def _spawn(fn, *args):
     return fut
 
 
+_DET_RE = re.compile(r"(?:^|[^A-Za-z0-9])D([1-6])(?![0-9])", re.I)   # "SPHEREx-D1", "spherex-d1"... -> 1
+_SEARCH_STATS: dict = {}                                        # файл -> що саме відповів IRSA (для діагностики)
+
+
+def _txt(v) -> str:
+    """Рядок з комірки VOTable: bytes (буває у async TAP / інших версіях astropy), masked -> ""."""
+    if v is None or v is np.ma.masked:
+        return ""
+    if isinstance(v, (bytes, np.bytes_)):
+        return v.decode("utf-8", "replace").strip()
+    return str(v).strip()
+
+
+SIA_COLLECTIONS = [c.strip() for c in os.environ.get(
+    "SPHEREX_SIA_COLLECTIONS", "spherex_dr1,spherex_qr3,spherex_dr1_deep,spherex_qr3_deep").split(",") if c.strip()]
+
+
+def _rows_from_tap(Irsa, adql: str, use_async: bool):
+    """TAP: spherex.artifact ⨝ spherex.plane -> [(uri, band, mjd)]."""
+    if use_async:
+        tap = getattr(Irsa, "tap", None)                          # pyvo TAPService IRSA
+        tbl = (tap.run_async(adql).to_table() if tap is not None and hasattr(tap, "run_async")
+               else Irsa.query_tap(adql, async_job=True).to_table())
+    else:
+        tbl = Irsa.query_tap(adql).to_table()
+    return [(row["uri"], row["energy_bandpassname"], row["time_bounds_lower"]) for row in tbl]
+
+
+def _rows_from_sia(Irsa, ra: float, dec: float):
+    """Інший сервіс IRSA — SIA2 (/SIA): працює окремо від TAP, тож рятує, коли TAP дає 502.
+    Колекції SPHEREx: DR1 і QR3 (широкий огляд) та їхні _deep; перша колекція має перевагу."""
+    rows, errors = [], []
+    for coll in SIA_COLLECTIONS:
+        try:
+            t = Irsa.query_sia(pos=(SkyCoord(ra, dec, unit="deg"), 1 * u.arcsec), collection=coll)
+        except Exception as exc:                                  # noqa: BLE001
+            errors.append(exc)
+            continue
+        for row in t:
+            rows.append((row["access_url"], row["energy_bandpassname"], row["t_min"]))
+    if errors and len(errors) == len(SIA_COLLECTIONS):
+        raise errors[0]                                           # усі колекції впали -> помилка SIA
+    return rows
+
+
 def _irsa_search(ra: float, dec: float, path: Path) -> list[dict]:
-    """Запит до IRSA TAP (з повторами) -> список кадрів; результат одразу пишеться в кеш."""
+    """Пошук кадрів у IRSA -> список кадрів; результат одразу пишеться в кеш.
+    Порядок: TAP (sync) -> SIA2 (окремий сервіс) -> TAP async. «502 Proxy Error» на /TAP/sync означає,
+    що проксі IRSA не дочекався бази; SIA2 та асинхронний TAP ходять іншим шляхом."""
     from astroquery.ipac.irsa import Irsa
     adql = spherex_adql(ra, dec)
-    mode = {"async": False}
-
-    def ask():
-        # «502 Proxy Error» на /TAP/sync = проксі IRSA не дочекався довгого запиту. Для таких запитів
-        # IRSA має асинхронний TAP (/TAP/async): задача ставиться в чергу, ми опитуємо її до готовності.
-        if mode["async"]:
-            print(f"IRSA: asking via async TAP for {ra:.4f} {dec:+.4f}")
-            tap = getattr(Irsa, "tap", None)                     # pyvo TAPService IRSA
-            if tap is not None and hasattr(tap, "run_async"):
-                return tap.run_async(adql).to_table()
-            return Irsa.query_tap(adql, async_job=True).to_table()
-        try:
-            return Irsa.query_tap(adql).to_table()
-        except Exception as exc:                                  # noqa: BLE001
-            if _transient(exc):
-                mode["async"] = True                              # наступні спроби — асинхронно
+    mode = {"via": "TAP"}
+    try:
+        raw = _retry(lambda: _rows_from_tap(Irsa, adql, False), tries=2)
+    except Exception as tap_exc:                                  # noqa: BLE001
+        if not _transient(tap_exc):
             raise
-    tbl = _retry(ask, tries=4)
-    frames, seen = [], set()
-    for row in tbl:
-        uri = str(row["uri"]).strip()
+        try:
+            print(f"IRSA TAP failed ({_err_text(tap_exc)}); asking IRSA SIA2 for {ra:.4f} {dec:+.4f}")
+            raw, mode["via"] = _retry(lambda: _rows_from_sia(Irsa, ra, dec), tries=2), "SIA2"
+        except Exception as sia_exc:                              # noqa: BLE001
+            print(f"IRSA SIA2 failed ({_err_text(sia_exc)}); asking via async TAP")
+            raw, mode["via"] = _retry(lambda: _rows_from_tap(Irsa, adql, True), tries=2), "async TAP"
+    frames, seen, seen_obs, bands, n_rows = [], set(), set(), set(), 0
+    for uri_v, band_v, mjd_v in raw:
+        n_rows += 1
+        uri, band = _txt(uri_v), _txt(band_v)
+        bands.add(band)
+        m = _DET_RE.search(band)
+        try:
+            mjd = float(mjd_v)
+        except (TypeError, ValueError):
+            continue
+        if not uri or not m or not math.isfinite(mjd):
+            continue
         url = uri if uri.lower().startswith("http") else IRSA_BASE + uri.lstrip("/")
-        band = str(row["energy_bandpassname"])
-        if url in seen or not band.startswith("SPHEREx-D"):
+        url = url.split("?", 1)[0]                                # лише файл; параметри вирізу додаємо самі
+        obs = (m.group(1), round(mjd, 5))                         # той самий кадр у DR1 і QR3 -> один раз
+        if url in seen or obs in seen_obs:
             continue
         seen.add(url)
-        mjd = float(row["time_bounds_lower"])
+        seen_obs.add(obs)
         frames.append({"id": _key(url), "url": url, "mjd": mjd,
                        "date": Time(mjd, format="mjd").iso[:19],
-                       "det": band.replace("SPHEREx-", "")})
+                       "det": f"D{m.group(1)}"})
+    frames.sort(key=lambda f: f["mjd"])
+    _SEARCH_STATS[path.name] = {"irsa_rows": n_rows, "usable": len(frames), "via": mode["via"],
+                                "bands_seen": sorted(bands)[:8]}
+    if mode["via"] != "TAP":
+        print(f"IRSA {mode['via']}: {len(frames)} frames for {ra:.4f} {dec:+.4f}")
+    if n_rows and not frames:
+        print(f"IRSA returned {n_rows} rows for {ra:.4f} {dec:+.4f} but none were usable; bands: {sorted(bands)[:8]}")
     # эпохи: SPHEREx снимает точку пачкой раз в ~полгода
     epoch, prev = 0, None
     for f in frames:
@@ -433,7 +493,8 @@ def search_frames(ra: float, dec: float, fresh: bool = False, poll: bool = False
     висіли б по хвилині на кожен виклик, коли IRSA відповідає 502."""
     path = _search_path(ra, dec)
     age = time.time() - path.stat().st_mtime if path.exists() else None
-    if age is not None and (age < 60 or (not fresh and age < SEARCH_TTL_S)):
+    ttl = EMPTY_TTL_S if age is not None and path.stat().st_size <= 2 else SEARCH_TTL_S   # "[]" = порожньо
+    if age is not None and (age < 60 or (not fresh and age < ttl)):
         return json.loads(path.read_text())
 
     if not poll and not fresh:
@@ -906,6 +967,7 @@ def api_search(ra: float, dec: float, fresh: bool = False):
     return {"ra": ra, "dec": dec, "n_frames": len(frames),
             "stale": stale, "retrieved_utc": near["retrieved_utc"] if near else info["retrieved_utc"],
             "nearby": near, "pending": False,
+            **({"irsa": _SEARCH_STATS.get(path.name)} if not frames and _SEARCH_STATS.get(path.name) else {}),
             "epochs": sorted({f["epoch"] for f in frames}),                  # внутрішнє, для сумісності
             "windows": observation_windows(frames),                           # для інтерфейсу: лише дати
             "frames": [{k: v for k, v in f.items() if k != "url"} for f in frames]}

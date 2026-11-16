@@ -1,0 +1,20 @@
+# Render Blueprint: Render reads this file from the repository root.
+# On every push it runs buildCommand (installs requirements.txt) and then startCommand.
+services:
+  - type: web
+    name: spherex-sky-motion-viewer
+    runtime: python
+    plan: free
+    autoDeploy: true                         # redeploy on every push to the branch
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: python app.py              # listens on 0.0.0.0:$PORT (Render sets PORT)
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      - key: WORKERS                         # free plan has 512 MB RAM: keep parallel work small
+        value: "2"
+      - key: IRSA_CONCURRENCY
+        value: "3"
+      - key: CACHE_MAX_GB
+        value: "0.5"

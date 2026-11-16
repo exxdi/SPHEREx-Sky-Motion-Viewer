@@ -295,3 +295,15 @@ An IRSA attempt that hangs longer than 180 s (`IRSA_RESTART_S`) gets a second at
   Find candidate measures it along its track. The spectrum refreshes when all frames have loaded.
   `/api/spectrum` takes `pmra`, `pmdec` (mas/yr) and `pm_year` and reports skipped frames.
 
+### Hosting on Render (dependencies install automatically)
+`render.yaml` in the repository root is a Render Blueprint. On Render: **New → Blueprint →** pick the
+GitHub repository. On every push Render runs `pip install -r requirements.txt`, then `python app.py`.
+For an existing service, set in Settings: Build Command `pip install -r requirements.txt`,
+Start Command `python app.py`, Auto-Deploy *On Commit*. To get the same library versions as on your
+computer, run `pip freeze > requirements.txt` in the activated venv and commit the file.
+
+### When IRSA TAP is down
+The frame list is searched with IRSA TAP; if TAP answers 502/503 twice, the server asks IRSA's separate
+SIA2 service (collections `spherex_dr1`, `spherex_qr3`, `spherex_dr1_deep`, `spherex_qr3_deep`;
+override with `SPHEREX_SIA_COLLECTIONS`), then async TAP. The same exposure in two releases is kept once.
+
